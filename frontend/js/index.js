@@ -5,8 +5,7 @@ class Produto {
     }
 }
 
-/* PRODUTOS */
-const pix_mae = new Produto('pix de mãe', 23.00)
+const pix_mae = new Produto('pix de mãe',23.00)
 const bolo_milho = new Produto('Bolo de milho', 3.00)
 const bolo_chocolate = new Produto('Bolo de chocolate', 3.00)
 const sopa = new Produto('Sopa', 3.00)
@@ -16,9 +15,9 @@ const cookies_g = new Produto('Cookie G', 12.50)
 const brownie = new Produto('Brownie', 3.00)
 const cafe = new Produto('Café', 0.50)
 
-const produtos_hoje = [bolo_chocolate, cafe, cookies_m, cookies_p]
+const produtos_hoje = [bolo_chocolate,cafe,cookies_m,cookies_p]
 
-/* ELEMENTOS */
+const div_principal = document.getElementById("principal")
 const btn_nome = document.getElementById("btn_nome")
 const nome_usuario = document.getElementById("nome_usuario")
 const caixa_nome = document.getElementById("caixa_nome")
@@ -31,50 +30,52 @@ const div_pix_copia_cola = document.getElementById("div_pix-copia-cola")
 const textarea_pix = document.getElementById("pix-copia-cola")
 const btn_copiar = document.getElementById("btn-copiar")
 
-/* TOTAL */
-const h1_total = document.createElement("h1")
-h1_total.id = "texto_total"
-h1_total.textContent = "Total: R$ 0,00"
+const h1_total = document.createElement('h1')
+h1_total.id = 'texto_total'
+h1_total.textContent = 'Total: R$ 0,00'
 
-const btn_fechar_pedido = document.createElement("button")
-btn_fechar_pedido.id = "btn_fechar_pedido"
-btn_fechar_pedido.textContent = "Fechar pedido"
+const btn_fechar_pedido = document.createElement('button')
+btn_fechar_pedido.id = 'btn_fechar_pedido'
+btn_fechar_pedido.textContent = 'Fechar pedido'
 
-/* ESTADO */
-let nome_cliente = ""
+let nome_cliente = ''
 let produtos_cliente = []
 let total = 0
 
-/* NOME */
-btn_nome.addEventListener("click", (e) => {
+btn_nome.addEventListener('click', (e) => {
     e.preventDefault()
+
     nome_cliente = nome_usuario.value.trim()
     if (!nome_cliente) return alert("Digite seu nome")
+
     caixa_nome.remove()
     cardapio.style.display = "flex"
 })
 
-/* CARDÁPIO */
 produtos_hoje.forEach((produto) => {
-    const div_produto = document.createElement("div")
-    div_produto.classList.add("produto")
 
-    const span = document.createElement("span")
-    span.textContent = `${produto.nome} - ${produto.preco.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
+    const div_produto = document.createElement('div')
+    div_produto.classList.add('produto')
+
+    const span = document.createElement('span')
+    span.classList.add('texto_produto')
+    span.textContent = `${produto.nome} - ${produto.preco.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
     })}`
 
-    const btn = document.createElement("button")
-    btn.textContent = "+"
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.classList.add('btn_produto')
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener('click', () => {
+
         produtos_cliente.push(produto)
-        total += produto.preco
 
-        h1_total.textContent = `Total: ${total.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL"
+        total += produto.preco
+        h1_total.textContent = `Total: ${total.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
         })}`
 
         div_conta.style.display = "flex"
@@ -84,26 +85,33 @@ produtos_hoje.forEach((produto) => {
         if (item) {
             let qtd = Number(item.dataset.qtd) + 1
             item.dataset.qtd = qtd
-            item.querySelector(".qtd").textContent = `${qtd}x`
+            item.querySelector('.qtd').textContent = `${qtd}x`
         } else {
-            const item_conta = document.createElement("div")
+            const item_conta = document.createElement('div')
+            item_conta.classList.add('produto_conta')
             item_conta.dataset.nome = produto.nome
             item_conta.dataset.qtd = 1
 
-            const nome = document.createElement("span")
+            const nome = document.createElement('span')
             nome.textContent = produto.nome
 
-            const qtd = document.createElement("span")
-            qtd.classList.add("qtd")
-            qtd.textContent = "1x"
+            const qtd = document.createElement('span')
+            qtd.classList.add('qtd')
+            qtd.textContent = '1x'
 
             item_conta.append(nome, qtd)
-            item_conta.classList.add("produto-conta")
+            if (div_conta.contains(h1_total)) div_conta.removeChild(h1_total);
+            if (div_conta.contains(btn_fechar_pedido)) div_conta.removeChild(btn_fechar_pedido);
+            div_conta.appendChild(item_conta);
+            div_conta.appendChild(h1_total);
+            div_conta.appendChild(btn_fechar_pedido);
+        }
 
-
-            div_conta.appendChild(item_conta)
-            div_conta.appendChild(h1_total)
-            div_conta.appendChild(btn_fechar_pedido)
+        if (!div_conta.contains(h1_total)) {
+            div_conta.appendChild(h1_total);
+        }
+        if (!div_conta.contains(btn_fechar_pedido)) {
+            div_conta.appendChild(btn_fechar_pedido);
         }
     })
 
@@ -111,7 +119,6 @@ produtos_hoje.forEach((produto) => {
     cardapio.appendChild(div_produto)
 })
 
-/* CRC */
 function crc16(payload) {
     let polinomio = 0x1021
     let resultado = 0xFFFF
@@ -119,95 +126,120 @@ function crc16(payload) {
     for (let i = 0; i < payload.length; i++) {
         resultado ^= payload.charCodeAt(i) << 8
         for (let j = 0; j < 8; j++) {
-            if ((resultado <<= 1) & 0x10000) resultado ^= polinomio
+            if ((resultado <<= 1) & 0x10000) {
+                resultado ^= polinomio
+            }
             resultado &= 0xFFFF
         }
     }
-    return resultado.toString(16).toUpperCase().padStart(4, "0")
+    return resultado.toString(16).toUpperCase().padStart(4, '0')
 }
 
-/* PIX */
 function gerarPix({ chave, nome, cidade, valor, txid }) {
-    const valorStr = valor.toFixed(2)
+    const valorStr = valor.toFixed(2); // ponto decimal, não vírgula
 
-    const gui = "BR.GOV.BCB.PIX"
-    const campo26Conteudo =
-        `00${gui.length.toString().padStart(2, "0")}${gui}` +
-        `01${chave.length.toString().padStart(2, "0")}${chave}`
+    const gui = "BR.GOV.BCB.PIX";
+    const guiLength = gui.length.toString().padStart(2, '0');
 
-    const campo26 = `26${campo26Conteudo.length.toString().padStart(2, "0")}${campo26Conteudo}`
+    const chaveLength = chave.length.toString().padStart(2, '0');
+    const campo26Conteudo = `00${guiLength}${gui}01${chaveLength}${chave}`;
+    const campo26Length = campo26Conteudo.length.toString().padStart(2, '0');
+    const campo26 = `26${campo26Length}${campo26Conteudo}`;
 
-    const campo62Conteudo = `05${txid.length.toString().padStart(2, "0")}${txid}`
-    const campo62 = `62${campo62Conteudo.length.toString().padStart(2, "0")}${campo62Conteudo}`
+    const txidVal = txid.length > 25 ? txid.slice(0, 25) : txid;
+    const txidLength = txidVal.length.toString().padStart(2, '0');
+    const campo62Conteudo = `05${txidLength}${txidVal}`;
+    const campo62Length = campo62Conteudo.length.toString().padStart(2, '0');
+    const campo62 = `62${campo62Length}${campo62Conteudo}`;
+
+    const nomeLength = nome.length.toString().padStart(2, '0');
+    const cidadeLength = cidade.length.toString().padStart(2, '0');
+    const valorLength = valorStr.length.toString().padStart(2, '0');
 
     const payloadSemCRC =
-        "000201010212" +
+        "000201" +
+        "010212" +
         campo26 +
-        "520400005303986" +
-        "54" + valorStr.length.toString().padStart(2, "0") + valorStr +
-        "5802BR" +
-        "59" + nome.length.toString().padStart(2, "0") + nome +
-        "60" + cidade.length.toString().padStart(2, "0") + cidade +
+        "52040000" +
+        "5303986" +
+        "54" + valorLength + valorStr +
+        "58" + "02" + "BR" +
+        "59" + nomeLength + nome +
+        "60" + cidadeLength + cidade +
         campo62 +
-        "6304"
+        "6304";
 
-    return payloadSemCRC + crc16(payloadSemCRC)
+    const crc = crc16(payloadSemCRC);
+    return payloadSemCRC + crc;
 }
 
-/* FECHAR PEDIDO */
-btn_fechar_pedido.addEventListener("click", async () => {
-    try {
-        for (const produto of produtos_cliente) {
-            const res = await fetch("https://sitepedidosjovens.onrender.com/pedir", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    nome: nome_cliente,
-                    produto: produto.nome
-                })
-            })
 
-            if (!res.ok) throw new Error("Erro ao salvar pedido")
-            const json = await res.json()
-            if (json.status !== "ok") throw new Error("Erro backend")
-        }
+  
 
-        const res_pag = await fetch("https://sitepedidosjovens.onrender.com/pagamento", {
+
+
+btn_fechar_pedido.addEventListener('click', async () => {
+
+    for (const produto of produtos_cliente) {
+        const res = await fetch("https://sitepedidosjovens.onrender.com/pedir", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 nome: nome_cliente,
-                montante: total
+                produto: produto.nome
             })
         })
 
-        if (!res_pag.ok) throw new Error("Erro pagamento")
-        const pagamento = await res_pag.json()
-
-        const payload = gerarPix({
-            chave: "c400a935-9063-4cea-8fc6-0e2cdb73cbe7",
-            nome: "Emily Natasha Mergulhao d",
-            cidade: "SAO PAULO",
-            valor: total,
-            txid: `PEDIDO${pagamento.id_pag}`
-        })
-
-        QRCode.toCanvas(document.getElementById("qrcode"), payload, { width: 250 })
-        textarea_pix.value = payload
-
-        btn_copiar.onclick = () => {
-            navigator.clipboard.writeText(payload)
-            alert("PIX copiado!")
+        const json = await res.json()
+        if (json.status !== "ok") {
+            alert("Erro ao salvar pedido")
+            return
         }
-
-        cardapio.style.display = "none"
-        div_conta.style.display = "none"
-        div_qrcode.style.display = "flex"
-        div_pix_copia_cola.style.display = "flex"
-        principal_qr.style.display = "flex"
-
-    } catch (err) {
-        console.error(err)
-        alert("Servidor indisponível. Tente novamente.")
     }
+
+    const res_pag = await fetch("https://sitepedidosjovens.onrender.com/pagamento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nome: nome_cliente,
+            montante: total
+        })
+    })
+
+    const pagamento = await res_pag.json()
+    if (pagamento.status !== "ok") {
+        alert("Erro no pagamento")
+        return
+    }
+
+    const txid = `PEDIDO${pagamento.id_pag.toString().padStart(5, '0')}`
+
+    const payload = gerarPix({
+        chave: "c400a935-9063-4cea-8fc6-0e2cdb73cbe7",
+        nome: "Emily Natasha Mergulhao d",
+        cidade: "SAO PAULO",
+        valor: total,
+        txid: txid
+    })
+
+    QRCode.toCanvas(
+        document.getElementById("qrcode"),
+        payload,
+        { width: 250 }
+    )
+
+    textarea_pix.value = payload
+
+    btn_copiar.onclick = () => {
+        navigator.clipboard.writeText(payload)
+        alert("PIX copiado!")
+    }
+
+    cardapio.style.display = "none"
+    div_conta.style.display = "none"
+    div_qrcode.style.display = "flex"
+    div_pix_copia_cola.style.display = "flex"
+    principal_qr.style.display = "flex"
+    principal_qr.style.flexDirection = "column"
+    principal_qr.style.gap = "20px"
 })
