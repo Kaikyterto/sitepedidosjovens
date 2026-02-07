@@ -70,6 +70,7 @@ produtos_hoje.forEach((produto) => {
 
     btn.addEventListener("click", () => {
         produtos_cliente.push(produto)
+        produto.classList = "produto_conta"
         total += produto.preco
 
         h1_total.textContent = `Total: ${total.toLocaleString("pt-BR", {
