@@ -14,8 +14,10 @@ const cookies_m = new Produto('Cookie M', 6.00)
 const cookies_g = new Produto('Cookie G', 12.50)
 const brownie = new Produto('Brownie', 3.00)
 const cafe = new Produto('Café', 0.50)
+const cuzcuz = new Produto('Cuzcuz', 5.00)
+const refrigerante = new Produto('Refrigerante', 1.00)
 
-const produtos_hoje = [bolo_chocolate,cafe,cookies_m,cookies_p]
+const produtos_hoje = [brownie,cuzcuz,cafe,refrigerante]
 
 const div_principal = document.getElementById("principal")
 const btn_nome = document.getElementById("btn_nome")
