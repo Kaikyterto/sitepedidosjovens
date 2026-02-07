@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App jovens</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+</head>
+<body>
+    <div id="principal">
+        <div id="caixa_nome">
+            <h1>Bem-vindo ao App jovens</h1>
+            <form id="form_pedido">
+                <label for="nome_usuario">Nome:</label>
+                <input type="text" id="nome_usuario" name="nome_usuario" placeholder="Digite seu nome" required=true>
+                    <button id="btn_nome">Enviar</button>
+            </form>
+        </div>
+
+        <div id="cardapio">
+            <h1 id="nome_cardapio">Cardápio</h1>
+        </div>
+
+        <div id="div_conta">
+            <h1>Sua conta</h1>
+        </div>
+
+        <div id="principal_qr">
+            
+            <div id="div_qrcode">
+                <h3>Pedido realizado com sucesso! ✅</h3>
+                <canvas id="qrcode"></canvas>
+            </div>
+            <div id="div_pix-copia-cola">
+                <h3>PIX Copia e Cola</h3>
+                <textarea id="pix-copia-cola" readonly></textarea>
+                <button id="btn-copiar">Copiar código PIX</button>
+            </div>
+            
+        </div>
+        
+        
+    </div>
+   
+    <script src="https://cdn.jsdelivr.net/npm/pix-payload/dist/pix-payload.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+
+</body>
+</html>
