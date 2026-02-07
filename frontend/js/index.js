@@ -5,7 +5,7 @@ class Produto {
     }
 }
 
-const pix_mae = new Produto('pix de mãe',23.00)
+const pix_mae = new Produto('pix de mãe', 23.00)
 const bolo_milho = new Produto('Bolo de milho', 3.00)
 const bolo_chocolate = new Produto('Bolo de chocolate', 3.00)
 const sopa = new Produto('Sopa', 3.00)
@@ -15,7 +15,7 @@ const cookies_g = new Produto('Cookie G', 12.50)
 const brownie = new Produto('Brownie', 3.00)
 const cafe = new Produto('Café', 0.50)
 
-const produtos_hoje = [bolo_chocolate,cafe,cookies_m,cookies_p]
+const produtos_hoje = [bolo_chocolate, cafe, cookies_m, cookies_p]
 
 const div_principal = document.getElementById("principal")
 const btn_nome = document.getElementById("btn_nome")
@@ -100,18 +100,13 @@ produtos_hoje.forEach((produto) => {
             qtd.textContent = '1x'
 
             item_conta.append(nome, qtd)
-            if (div_conta.contains(h1_total)) div_conta.removeChild(h1_total);
-            if (div_conta.contains(btn_fechar_pedido)) div_conta.removeChild(btn_fechar_pedido);
-            div_conta.appendChild(item_conta);
-            div_conta.appendChild(h1_total);
-            div_conta.appendChild(btn_fechar_pedido);
-        }
 
-        if (!div_conta.contains(h1_total)) {
-            div_conta.appendChild(h1_total);
-        }
-        if (!div_conta.contains(btn_fechar_pedido)) {
-            div_conta.appendChild(btn_fechar_pedido);
+            if (div_conta.contains(h1_total)) div_conta.removeChild(h1_total)
+            if (div_conta.contains(btn_fechar_pedido)) div_conta.removeChild(btn_fechar_pedido)
+
+            div_conta.appendChild(item_conta)
+            div_conta.appendChild(h1_total)
+            div_conta.appendChild(btn_fechar_pedido)
         }
     })
 
@@ -126,9 +121,7 @@ function crc16(payload) {
     for (let i = 0; i < payload.length; i++) {
         resultado ^= payload.charCodeAt(i) << 8
         for (let j = 0; j < 8; j++) {
-            if ((resultado <<= 1) & 0x10000) {
-                resultado ^= polinomio
-            }
+            if ((resultado <<= 1) & 0x10000) resultado ^= polinomio
             resultado &= 0xFFFF
         }
     }
@@ -136,52 +129,34 @@ function crc16(payload) {
 }
 
 function gerarPix({ chave, nome, cidade, valor, txid }) {
-    const valorStr = valor.toFixed(2); // ponto decimal, não vírgula
+    const valorStr = valor.toFixed(2)
 
-    const gui = "BR.GOV.BCB.PIX";
-    const guiLength = gui.length.toString().padStart(2, '0');
+    const gui = "BR.GOV.BCB.PIX"
+    const campo26Conteudo = `00${gui.length.toString().padStart(2, '0')}${gui}01${chave.length.toString().padStart(2, '0')}${chave}`
+    const campo26 = `26${campo26Conteudo.length.toString().padStart(2, '0')}${campo26Conteudo}`
 
-    const chaveLength = chave.length.toString().padStart(2, '0');
-    const campo26Conteudo = `00${guiLength}${gui}01${chaveLength}${chave}`;
-    const campo26Length = campo26Conteudo.length.toString().padStart(2, '0');
-    const campo26 = `26${campo26Length}${campo26Conteudo}`;
-
-    const txidVal = txid.length > 25 ? txid.slice(0, 25) : txid;
-    const txidLength = txidVal.length.toString().padStart(2, '0');
-    const campo62Conteudo = `05${txidLength}${txidVal}`;
-    const campo62Length = campo62Conteudo.length.toString().padStart(2, '0');
-    const campo62 = `62${campo62Length}${campo62Conteudo}`;
-
-    const nomeLength = nome.length.toString().padStart(2, '0');
-    const cidadeLength = cidade.length.toString().padStart(2, '0');
-    const valorLength = valorStr.length.toString().padStart(2, '0');
+    const txidVal = txid.length > 25 ? txid.slice(0, 25) : txid
+    const campo62Conteudo = `05${txidVal.length.toString().padStart(2, '0')}${txidVal}`
+    const campo62 = `62${campo62Conteudo.length.toString().padStart(2, '0')}${campo62Conteudo}`
 
     const payloadSemCRC =
-        "000201" +
-        "010212" +
+        "000201010212" +
         campo26 +
-        "52040000" +
-        "5303986" +
-        "54" + valorLength + valorStr +
-        "58" + "02" + "BR" +
-        "59" + nomeLength + nome +
-        "60" + cidadeLength + cidade +
+        "520400005303986" +
+        "54" + valorStr.length.toString().padStart(2, '0') + valorStr +
+        "5802BR" +
+        "59" + nome.length.toString().padStart(2, '0') + nome +
+        "60" + cidade.length.toString().padStart(2, '0') + cidade +
         campo62 +
-        "6304";
+        "6304"
 
-    const crc = crc16(payloadSemCRC);
-    return payloadSemCRC + crc;
+    return payloadSemCRC + crc16(payloadSemCRC)
 }
-
-
-  
-
-
 
 btn_fechar_pedido.addEventListener('click', async () => {
 
     for (const produto of produtos_cliente) {
-        const res = await fetch("/pedir", {
+        const res = await fetch("https://sitepedidosjovens.onrender.com/pedir", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -197,7 +172,7 @@ btn_fechar_pedido.addEventListener('click', async () => {
         }
     }
 
-    const res_pag = await fetch("/pagamento", {
+    const res_pag = await fetch("https://sitepedidosjovens.onrender.com/pagamento", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -219,14 +194,10 @@ btn_fechar_pedido.addEventListener('click', async () => {
         nome: "Emily Natasha Mergulhao d",
         cidade: "SAO PAULO",
         valor: total,
-        txid: txid
+        txid
     })
 
-    QRCode.toCanvas(
-        document.getElementById("qrcode"),
-        payload,
-        { width: 250 }
-    )
+    QRCode.toCanvas(document.getElementById("qrcode"), payload, { width: 250 })
 
     textarea_pix.value = payload
 
