@@ -42,7 +42,6 @@ body {
   justify-content: flex-start;
   color: white;
   overflow: auto;
-  margin-top: 25px;
 }
 
 /* Estilização da scrollbar (funciona em navegadores baseados em WebKit, como Chrome e Edge) */
@@ -70,7 +69,7 @@ body {
 }
 
 button {
-  margin-top: auto;
+  margin: 10px;
   width: 100px;
   background-color: yellow;
   border-radius: 10px;

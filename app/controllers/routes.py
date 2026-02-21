@@ -137,13 +137,8 @@ def health():
 
 @cliente.route("/pesquisar")
 def pesquisar():
-    dados = request.get_json(silent=True)
 
-    if not dados:
-        return jsonify({"erro": "JSON inválido"}), 400
-
-    cliente = dados.get("nome")
-    data = dados.get("data")
+    cliente = request.args.get("nome")
 
     if not cliente:
         return jsonify({"erro": "Dados incompletos"}), 400
@@ -154,9 +149,9 @@ def pesquisar():
         cursor.execute("""
             SELECT cliente, produto, data 
             FROM pedidosclientes 
-            WHERE cliente = %s AND data = %s
+            WHERE cliente = %s
             ORDER BY data ASC
-        """, (cliente, data))
+        """, (cliente,))
         resultados = cursor.fetchall()
     except Exception as e:
         conn.rollback()
