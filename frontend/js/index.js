@@ -16,8 +16,9 @@ const brownie = new Produto("Brownie", 3.0);
 const cafe = new Produto("Café", 0.5);
 const cuzcuz = new Produto("Cuzcuz", 5.0);
 const refrigerante = new Produto("Refrigerante", 1.0);
+const torta = new Produto("Torta", 5.0);
 
-const produtos_hoje = [sopa, cookies_p, cookies_m, cookies_g, bolo_milho, cafe];
+const produtos_hoje = [torta];
 
 const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
