@@ -17,7 +17,7 @@ const cafe = new Produto("Café", 0.5);
 const cuzcuz = new Produto("Cuzcuz", 5.0);
 const refrigerante = new Produto("Refrigerante", 1.0);
 const torta = new Produto("Torta de Frango", 4.0);
-const xerem = new Produto("Xerém", 5.0);
+const xerem = new Produto("Xerém com galinha", 5.0);
 
 const produtos_hoje = [cookies_p, cookies_m, cookies_g, xerem, cafe];
 
