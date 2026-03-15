@@ -13,13 +13,14 @@ const cookies_p = new Produto("Cookie P", 3.0);
 const cookies_m = new Produto("Cookie M", 6.0);
 const cookies_g = new Produto("Cookie G", 12.5);
 const brownie = new Produto("Brownie", 3.0);
+const brownie_texas = new Produto("Brownie Texas", 6.5);
 const cafe = new Produto("Café", 0.5);
 const cuzcuz = new Produto("Cuzcuz", 5.0);
 const refrigerante = new Produto("Refrigerante", 1.0);
 const torta = new Produto("Torta de Frango", 4.0);
 const xerem = new Produto("Xerém com galinha", 5.0);
 
-const produtos_hoje = [cookies_p, cookies_m, cookies_g, xerem, cafe];
+const produtos_hoje = [brownie_texas, cafe];
 
 const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
