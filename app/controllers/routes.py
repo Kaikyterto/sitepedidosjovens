@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify
-from models.db import cursor, conn
+from app.models.db import cursor, conn
 from datetime import datetime
 
 cliente = Blueprint("cliente", __name__)
