@@ -24,7 +24,7 @@ const produtos_hoje = [
   cookies_p,
   cookies_m,
   cookies_g,
-  bolo_milho,
+  bolo_chocolate,
   refrigerante,
 ];
 
