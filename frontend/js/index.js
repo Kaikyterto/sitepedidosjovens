@@ -20,7 +20,13 @@ const refrigerante = new Produto("Refrigerante", 1.0);
 const torta = new Produto("Torta de Frango", 4.0);
 const xerem = new Produto("Xerém com galinha", 5.0);
 
-const produtos_hoje = [cookies_p, cookies_m, cookies_g, refrigerante];
+const produtos_hoje = [
+  cookies_p,
+  cookies_m,
+  cookies_g,
+  bolo_milho,
+  refrigerante,
+];
 
 const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
@@ -34,28 +40,6 @@ const div_qrcode = document.getElementById("div_qrcode");
 const div_pix_copia_cola = document.getElementById("div_pix-copia-cola");
 const textarea_pix = document.getElementById("pix-copia-cola");
 const btn_copiar = document.getElementById("btn-copiar");
-const fundo_anuncio = document.getElementById("fundo_anuncio");
-const btn_cancelar_anuncio = Array.from(
-  document.getElementsByClassName("cancelar")
-);
-const btn_copiar_anuncio = document.getElementById("btn-copiar-anuncio");
-
-btn_cancelar_anuncio.forEach((el) => {
-  el.addEventListener("click", () => {
-    fundo_anuncio.style.display = "none";
-  });
-});
-
-const chave_pix = "nemily0579@gmail.com";
-
-btn_copiar_anuncio.onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(chave_pix);
-    alert("Chave PIX copiada!");
-  } catch (err) {
-    alert("Erro ao copiar chave PIX");
-  }
-};
 
 const h1_total = document.createElement("h1");
 h1_total.id = "texto_total";
@@ -214,14 +198,17 @@ function gerarPix({ chave, nome, cidade, valor, txid }) {
 
 btn_fechar_pedido.addEventListener("click", async () => {
   for (const produto of produtos_cliente) {
-    const res = await fetch("https://sitepedidosjovens.onrender.com/pedir", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nome: nome_cliente,
-        produto: produto.nome,
-      }),
-    });
+    const res = await fetch(
+      "https://sitepedidosjovens-4gij.onrender.com/pedir",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: nome_cliente,
+          produto: produto.nome,
+        }),
+      }
+    );
 
     const json = await res.json();
     if (json.status !== "ok") {
@@ -231,7 +218,7 @@ btn_fechar_pedido.addEventListener("click", async () => {
   }
 
   const res_pag = await fetch(
-    "https://sitepedidosjovens.onrender.com/pagamento",
+    "https://sitepedidosjovens-4gij.onrender.com/pagamento",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

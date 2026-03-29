@@ -1,4 +1,4 @@
-const API_URL = "https://sitepedidosjovens.onrender.com";
+const API_URL = "https://sitepedidosjovens-4gij.onrender.com";
 
 async function buscarPedidos() {
   try {
@@ -14,7 +14,7 @@ async function buscarPedidos() {
     const listaPedidos = document.getElementById("listaPedidos");
     listaPedidos.innerHTML = "";
 
-    dados.forEach(pedido => {
+    dados.forEach((pedido) => {
       const item = document.createElement("div");
       item.className = "item";
 
@@ -22,7 +22,9 @@ async function buscarPedidos() {
       textoPedido.textContent = `Cliente: ${pedido.cliente} - Produto: ${pedido.produto}`;
 
       const btnEntregar = document.createElement("button");
-      btnEntregar.textContent = pedido.entregue ? "Entregue" : "Marcar como entregue";
+      btnEntregar.textContent = pedido.entregue
+        ? "Entregue"
+        : "Marcar como entregue";
       btnEntregar.disabled = pedido.entregue;
       btnEntregar.style.marginLeft = "10px";
 
@@ -31,9 +33,9 @@ async function buscarPedidos() {
           const res = await fetch(`${API_URL}/marcar_entregue`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: pedido.id })
+            body: JSON.stringify({ id: pedido.id }),
           });
 
           if (!res.ok) {
@@ -42,7 +44,6 @@ async function buscarPedidos() {
 
           btnEntregar.textContent = "Entregue";
           btnEntregar.disabled = true;
-
         } catch (error) {
           console.error(error);
           alert("Erro ao comunicar com o servidor");
@@ -53,14 +54,11 @@ async function buscarPedidos() {
       item.appendChild(btnEntregar);
       listaPedidos.appendChild(item);
     });
-
   } catch (error) {
     console.error("Erro geral:", error);
   }
 }
 
-
 setInterval(buscarPedidos, 2000);
-
 
 buscarPedidos();
