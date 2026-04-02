@@ -12,7 +12,7 @@ pesquisarPedido.addEventListener("input", async (evt) => {
 
   try {
     const resposta = await fetch(
-      `https://sitepedidosjovens.onrender.com/pesquisar?nome=${encodeURIComponent(
+      `https://sitepedidosjovens-4gij.onrender.com/pesquisar?nome=${encodeURIComponent(
         valorPesquisa
       )}`
     );
