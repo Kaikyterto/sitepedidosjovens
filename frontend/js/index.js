@@ -20,7 +20,14 @@ const refrigerante = new Produto("Refrigerante", 1.0);
 const torta = new Produto("Torta de Frango", 4.0);
 const xerem = new Produto("Xerém com galinha", 5.0);
 
-const produtos_hoje = [brownie, cafe];
+const coxinha = new Produto("Coxinha", 6.0);
+const pastel = new Produto("Pastel", 8.0);
+const batata_frita new Produto("Batata frita", 10.0);
+const batata_frita_cheddar = new Produto("Batata frita com cheddar e bacon", 14.0);
+
+
+
+const produtos_hoje = [coxinha, pastel,batata_frita,batata_frita_cheddar];
 
 const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
