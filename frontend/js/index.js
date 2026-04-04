@@ -22,7 +22,7 @@ const xerem = new Produto("Xerém com galinha", 5.0);
 
 const coxinha = new Produto("Coxinha", 6.0);
 const pastel = new Produto("Pastel", 8.0);
-const batata_frita new Produto("Batata frita", 10.0);
+const batata_frita = new Produto("Batata frita", 10.0);
 const batata_frita_cheddar = new Produto("Batata frita com cheddar e bacon", 14.0);
 
 
