@@ -19,8 +19,9 @@ const cuzcuz = new Produto("Cuzcuz", 5.0);
 const refrigerante = new Produto("Refrigerante", 1.0);
 const torta = new Produto("Torta de Frango", 4.0);
 const xerem = new Produto("Xerém com galinha", 5.0);
+const tapioca = new Produto("Tapioca", 3.0);
 
-const produtos_hoje = [brownie, cafe];
+const produtos_hoje = [tapioca, cafe];
 
 const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
