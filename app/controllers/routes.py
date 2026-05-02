@@ -58,6 +58,9 @@ def alterar_disponibilidade():
     if produto_id is None or disponivel is None:
         return jsonify({"erro": "Dados incompletos"}), 400
 
+    # 🔥 FORÇA BOOLEAN REAL
+    disponivel = bool(disponivel)
+
     try:
         cursor.execute("""
             UPDATE produtos
@@ -66,12 +69,11 @@ def alterar_disponibilidade():
         """, (disponivel, produto_id))
 
         conn.commit()
-
         return jsonify({"status": "ok"})
 
     except Exception as e:
         conn.rollback()
-        print("Erro ao atualizar produto:", e)
+        print("ERRO UPDATE PRODUTO:", e)
         return jsonify({"erro": "Erro ao atualizar produto"}), 500
 
 
