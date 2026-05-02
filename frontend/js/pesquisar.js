@@ -1,14 +1,18 @@
 const API_URL = "https://sitepedidosjovens.onrender.com";
 
+/* =========================
+   ELEMENTOS
+========================= */
 const listaProdutos = document.getElementById("listaProdutos");
-
 const pesquisarPedido = document.getElementById("pesquisar-pedidos");
 const listaPedidos = document.getElementById("listaPedidos");
 
+/* =========================
+   PESQUISA DE PEDIDOS
+========================= */
 pesquisarPedido.addEventListener("input", async (evt) => {
   const valor = evt.target.value.trim();
 
-  // se vazio, limpa e para
   if (!valor) {
     listaPedidos.innerHTML = "";
     return;
@@ -30,7 +34,6 @@ pesquisarPedido.addEventListener("input", async (evt) => {
       item.classList.add("item");
 
       const texto = document.createElement("span");
-
       texto.textContent = `${p.cliente} - ${p.produto} - ${p.data}`;
 
       item.appendChild(texto);
@@ -47,9 +50,12 @@ pesquisarPedido.addEventListener("input", async (evt) => {
 async function carregarProdutos() {
   try {
     const res = await fetch(`${API_URL}/produtos`);
+
+    if (!res.ok) throw new Error("Erro ao buscar produtos");
+
     const data = await res.json();
 
-    const produtos = data.produtos;
+    const produtos = data.produtos || [];
 
     listaProdutos.innerHTML = "";
 
@@ -58,13 +64,12 @@ async function carregarProdutos() {
       item.classList.add("item");
 
       const texto = document.createElement("span");
-      texto.textContent = `${p.nome} - R$ ${p.preco}`;
+      texto.textContent = `${p.nome} - R$ ${Number(p.preco).toFixed(2)}`;
 
       const btn = document.createElement("button");
 
       // estado visual
       btn.textContent = p.disponivel ? "Desativar" : "Ativar";
-      btn.style.marginLeft = "10px";
 
       btn.addEventListener("click", async () => {
         const novoEstado = !p.disponivel;
@@ -81,11 +86,11 @@ async function carregarProdutos() {
             }),
           });
 
-          if (!res.ok) throw new Error("Erro ao atualizar");
+          if (!res.ok) throw new Error("Erro ao atualizar produto");
 
-          // atualiza UI instantâneo
+          // atualiza estado local sem reload pesado
           p.disponivel = novoEstado;
-          carregarProdutos();
+          btn.textContent = novoEstado ? "Desativar" : "Ativar";
         } catch (err) {
           console.error(err);
           alert("Erro ao atualizar produto");
@@ -102,5 +107,7 @@ async function carregarProdutos() {
   }
 }
 
-/* inicializa */
+/* =========================
+   INICIALIZAÇÃO
+========================= */
 carregarProdutos();
