@@ -1,3 +1,5 @@
+const API_URL = "https://sitepedidosjovens.onrender.com";
+
 const pesquisarPedido = document.getElementById("pesquisar-pedidos");
 const divListaPedidos = document.getElementById("listaPedidos");
 
@@ -12,9 +14,7 @@ pesquisarPedido.addEventListener("input", async (evt) => {
 
   try {
     const resposta = await fetch(
-      `https://sitepedidosjovens-4gij.onrender.com/pesquisar?nome=${encodeURIComponent(
-        valorPesquisa
-      )}`
+      `${API_URL}/pesquisar?nome=${encodeURIComponent(valorPesquisa)}`
     );
 
     if (!resposta.ok) {
