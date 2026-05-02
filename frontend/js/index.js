@@ -195,7 +195,7 @@ function gerarPix({ chave, nome, cidade, valor, txid }) {
 
 btn_fechar_pedido.addEventListener("click", async () => {
   for (const produto of produtos_cliente) {
-    const res = await fetch(`|${API_URL}/pedir`, {
+    const res = await fetch(`${API_URL}/pedir`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -211,7 +211,7 @@ btn_fechar_pedido.addEventListener("click", async () => {
     }
   }
 
-  const res_pag = await fetch(`|${API_URL}/pagamento`, {
+  const res_pag = await fetch(`${API_URL}/pagamento`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
