@@ -1,123 +1,94 @@
-@font-face {
-  font-family: "Pacifico";
-  src: url("../fontes/Pacifico-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Montserrat";
-  src: url("../fontes/Montserrat-VariableFont_wght.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-}
-
 #principal {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0d1b2a;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 🔥 NOVO CONTAINER PRINCIPAL */
+#painel {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap; /* responsivo */
+}
+
+/* ======================
+   BLOCO PEDIDOS
+====================== */
+#bloco-pedidos {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #0d1b2a;
+  gap: 10px;
 }
 
+/* ======================
+   BLOCO PRODUTOS
+====================== */
+#bloco-produtos {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 15px;
+  background: #2d3e5f;
+  border-radius: 15px;
+  color: white;
+}
+
+/* ======================
+   LISTA PEDIDOS
+====================== */
 #listaPedidos {
   height: 400px;
-  width: 400px;
+  width: 450px;
+
   display: flex;
   flex-direction: column;
-  padding: 25px;
-  gap: 7px;
+  padding: 20px;
+  gap: 10px;
+
   background-color: #2d3e5f;
   border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
-  font-family: "Montserrat";
-  margin-left: 10px;
-  justify-content: flex-start;
+  overflow-y: auto;
   color: white;
-  overflow: auto;
 }
 
-/* Estilização da scrollbar (funciona em navegadores baseados em WebKit, como Chrome e Edge) */
-#listaPedidos::-webkit-scrollbar {
-  width: 10px;
-  border-radius: 20px;
+/* ======================
+   LISTA PRODUTOS
+====================== */
+#listaProdutos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-#listaPedidos::-webkit-scrollbar-track {
-  background: #2d3e5f;
-  border-radius: 20px;
-}
-
-#listaPedidos::-webkit-scrollbar-thumb {
-  background-color: yellow;
-  border-radius: 20px;
-  border: 2px solid #2d3e5f;
-}
-
+/* item genérico */
 .item {
   display: flex;
-  font-family: "Montserrat";
-  font-size: 20px;
   justify-content: space-between;
+  align-items: center;
+
+  padding: 8px;
+  background: #0d1b2a;
+  border-radius: 8px;
+  color: white;
 }
 
-button {
-  margin: 10px;
-  width: 100px;
-  background-color: yellow;
-  border-radius: 10px;
-  border: none;
-  font-family: "Montserrat", sans-serif;
-  color: #0d1b2a;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 10px;
-  width: 150px;
-  height: 30px;
-
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-button:hover,
-button:focus {
-  background-color: #ffd700;
-  color: #000;
-  box-shadow: 0 4px 8px rgba(255, 215, 0, 0.6);
-  outline: none;
-}
-
-button:active {
-  background-color: #ffc300;
-  box-shadow: 0 2px 4px rgba(255, 195, 0, 0.8);
-  transform: scale(0.97);
-  transition: transform 0.1s ease;
-}
-
+/* ======================
+   INPUT
+====================== */
 #pesquisar-pedidos {
-  width: 100%;
-  max-width: 300px;
-  padding: 12px 16px;
-  margin-bottom: 10px;
+  width: 450px;
+  padding: 12px;
 
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 10px;
-
-  font-size: 16px;
   outline: none;
-
-  transition: all 0.3s ease;
-  background-color: #f9f9f9;
-}
-
-#pesquisar-pedidos:focus {
-  border-color: #4f46e5;
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }

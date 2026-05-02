@@ -1,22 +1,38 @@
-import psycopg2,os
+import psycopg2
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-
+# ======================
+# CONEXÃO SEGURA
+# ======================
 def get_connection():
     return psycopg2.connect(
-    os.environ["DATABASE_URL"],
-    sslmode="require"
-)
+        os.environ["DATABASE_URL"],
+        sslmode="require"
+    )
+
 
 conn = get_connection()
-cursor = conn.cursor()
+
+
+# ⚠️ IMPORTANTE: cria cursor novo sempre que precisar
+def get_cursor():
+    return conn.cursor()
+
+
 print("Conectado com sucesso!")
 
+
+# ======================
+# TABELA: PEDIDOS
+# ======================
+cursor = get_cursor()
+
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS pedidosclientes (
+CREATE TABLE IF NOT EXISTS pedidosclientes (
     id SERIAL PRIMARY KEY,
     cliente VARCHAR(100) NOT NULL,
     produto VARCHAR(100) NOT NULL,
@@ -25,13 +41,51 @@ cursor.execute("""
 );
 """)
 
-cursor.execute(""" 
-    CREATE TABLE IF NOT EXISTS pagamentos (
+
+# ======================
+# TABELA: PAGAMENTOS
+# ======================
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS pagamentos (
     id SERIAL PRIMARY KEY,
     cliente VARCHAR(100) NOT NULL,
     montante NUMERIC(15,2) NOT NULL,
-    pago BOOLEAN NOT NULL DEFAULT FALSE
-    )
+    data TIMESTAMP NOT NULL DEFAULT NOW()
+);
 """)
 
+
+# ======================
+# TABELA: PRODUTOS
+# ======================
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS produtos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco NUMERIC(10,2) NOT NULL,
+    disponivel BOOLEAN NOT NULL DEFAULT TRUE
+);
+""")
+
+
 conn.commit()
+
+
+# ======================
+# POPULAR PRODUTOS (OPCIONAL)
+# ======================
+cursor.execute("SELECT COUNT(*) FROM produtos;")
+count = cursor.fetchone()[0]
+
+if count == 0:
+    cursor.execute("""
+        INSERT INTO produtos (nome, preco) VALUES
+        ('Tapioca', 3.00),
+        ('Café', 0.50),
+        ('Bolo de milho', 3.00),
+        ('Bolo de chocolate', 3.00),
+        ('Pastel', 1.00),
+        ('Refrigerante', 1.00);
+    """)
+    conn.commit()
+    print("Produtos iniciais inseridos!")

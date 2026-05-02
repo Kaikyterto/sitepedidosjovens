@@ -1,46 +1,106 @@
 const API_URL = "https://sitepedidosjovens.onrender.com";
 
+const listaProdutos = document.getElementById("listaProdutos");
+
 const pesquisarPedido = document.getElementById("pesquisar-pedidos");
-const divListaPedidos = document.getElementById("listaPedidos");
+const listaPedidos = document.getElementById("listaPedidos");
 
 pesquisarPedido.addEventListener("input", async (evt) => {
-  const valorPesquisa = evt.target.value.trim();
+  const valor = evt.target.value.trim();
 
-  // Evita chamada com campo vazio
-  if (!valorPesquisa) {
-    divListaPedidos.innerHTML = "";
+  // se vazio, limpa e para
+  if (!valor) {
+    listaPedidos.innerHTML = "";
     return;
   }
 
   try {
-    const resposta = await fetch(
-      `${API_URL}/pesquisar?nome=${encodeURIComponent(valorPesquisa)}`
+    const res = await fetch(
+      `${API_URL}/pesquisar?nome=${encodeURIComponent(valor)}`
     );
 
-    if (!resposta.ok) {
-      console.log("Erro na API:", resposta.status);
-      return;
-    }
+    if (!res.ok) throw new Error("Erro na API");
 
-    const dados = await resposta.json();
+    const dados = await res.json();
 
-    if (!Array.isArray(dados)) return;
+    listaPedidos.innerHTML = "";
 
-    // Limpa antes de renderizar
-    divListaPedidos.innerHTML = "";
+    dados.forEach((p) => {
+      const item = document.createElement("div");
+      item.classList.add("item");
 
-    dados.forEach((e) => {
-      console.log(e);
-      divListaPedidos.innerHTML += `
-        <p>
-          Cliente: ${e.cliente} <br>
-          Produto: ${e.produto} <br>
-          Data: ${e.data}
-        </p>
-        <hr>
-      `;
+      const texto = document.createElement("span");
+
+      texto.textContent = `${p.cliente} - ${p.produto} - ${p.data}`;
+
+      item.appendChild(texto);
+      listaPedidos.appendChild(item);
     });
-  } catch (error) {
-    console.error("Erro na pesquisa:", error);
+  } catch (err) {
+    console.error("Erro ao pesquisar pedidos:", err);
   }
 });
+
+/* =========================
+   CARREGAR PRODUTOS
+========================= */
+async function carregarProdutos() {
+  try {
+    const res = await fetch(`${API_URL}/produtos`);
+    const data = await res.json();
+
+    const produtos = data.produtos;
+
+    listaProdutos.innerHTML = "";
+
+    produtos.forEach((p) => {
+      const item = document.createElement("div");
+      item.classList.add("item");
+
+      const texto = document.createElement("span");
+      texto.textContent = `${p.nome} - R$ ${p.preco}`;
+
+      const btn = document.createElement("button");
+
+      // estado visual
+      btn.textContent = p.disponivel ? "Desativar" : "Ativar";
+      btn.style.marginLeft = "10px";
+
+      btn.addEventListener("click", async () => {
+        const novoEstado = !p.disponivel;
+
+        try {
+          const res = await fetch(`${API_URL}/produto/disponibilidade`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nome: p.nome,
+              disponivel: novoEstado,
+            }),
+          });
+
+          if (!res.ok) throw new Error("Erro ao atualizar");
+
+          // atualiza UI instantâneo
+          p.disponivel = novoEstado;
+          carregarProdutos();
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao atualizar produto");
+        }
+      });
+
+      item.appendChild(texto);
+      item.appendChild(btn);
+
+      listaProdutos.appendChild(item);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar produtos:", error);
+  }
+}
+
+/* inicializa */
+carregarProdutos();

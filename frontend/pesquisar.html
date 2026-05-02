@@ -8,12 +8,17 @@
   </head>
   <body>
     <div id="principal">
-      <input
-        type="text"
-        placeholder="Pesquisar Pedido"
-        id="pesquisar-pedidos"
-      />
-      <div id="listaPedidos"></div>
+      <div id="painel">
+        <div id="bloco-pedidos">
+          <input id="pesquisar-pedidos" placeholder="Pesquisar pedidos..." />
+          <div id="listaPedidos"></div>
+        </div>
+
+        <div id="bloco-produtos">
+          <h2>Produtos</h2>
+          <div id="listaProdutos"></div>
+        </div>
+      </div>
     </div>
 
     <script src="js/pesquisar.js"></script>

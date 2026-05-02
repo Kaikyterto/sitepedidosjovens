@@ -1,22 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos</title>
-    <link rel="stylesheet" href="css/pedidos.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <title>Painel de Pedidos</title>
 
+    <link rel="stylesheet" href="css/pedidos.css" />
+  </head>
 
-</head>
-<body>
+  <body>
+    <!-- =======================
+         PAINEL PRINCIPAL
+    ======================== -->
     <div id="principal">
-        <div id="listaPedidos"></div>
+      <!-- LISTA DE PEDIDOS -->
+      <div id="listaPedidos">
+        <!-- fallback inicial -->
+        <p style="text-align: center; opacity: 0.6">Carregando pedidos...</p>
+      </div>
     </div>
-    
 
-    <script src="js/pedidos.js"></script>
+    <!-- =======================
+         SCRIPTS
+    ======================== -->
+
+    <!-- PIX (se ainda usa em algum fluxo futuro) -->
     <script src="https://cdn.jsdelivr.net/npm/pix-payload/dist/pix-payload.min.js"></script>
 
-</body>
+    <!-- lógica do painel -->
+    <script src="js/pedidos.js"></script>
+  </body>
 </html>

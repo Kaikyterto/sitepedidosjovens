@@ -1,5 +1,9 @@
 const API_URL = "https://sitepedidosjovens.onrender.com";
 
+/* =========================
+   BUSCAR PEDIDOS
+========================= */
+
 async function buscarPedidos() {
   try {
     const res = await fetch(`${API_URL}/buscar_pedidos`);
@@ -9,55 +13,81 @@ async function buscarPedidos() {
     }
 
     const dados = await res.json();
-    console.log(dados);
 
     const listaPedidos = document.getElementById("listaPedidos");
     listaPedidos.innerHTML = "";
 
-    dados.forEach((pedido) => {
-      const item = document.createElement("div");
-      item.className = "item";
+    dados
+      .sort((a, b) => new Date(b.data) - new Date(a.data)) // mais recentes primeiro
+      .forEach((pedido) => {
+        const item = document.createElement("div");
+        item.className = "item";
 
-      const textoPedido = document.createElement("span");
-      textoPedido.textContent = `Cliente: ${pedido.cliente} - Produto: ${pedido.produto}`;
+        /* =========================
+           TEXTO DO PEDIDO
+        ========================= */
+        const textoPedido = document.createElement("span");
 
-      const btnEntregar = document.createElement("button");
-      btnEntregar.textContent = pedido.entregue
-        ? "Entregue"
-        : "Marcar como entregue";
-      btnEntregar.disabled = pedido.entregue;
-      btnEntregar.style.marginLeft = "10px";
+        textoPedido.textContent = `👤 ${pedido.cliente} | 🍔 ${pedido.produto}`;
 
-      btnEntregar.addEventListener("click", async () => {
-        try {
-          const res = await fetch(`${API_URL}/marcar_entregue`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: pedido.id }),
-          });
-
-          if (!res.ok) {
-            throw new Error("Erro ao atualizar pedido");
-          }
-
-          btnEntregar.textContent = "Entregue";
-          btnEntregar.disabled = true;
-        } catch (error) {
-          console.error(error);
-          alert("Erro ao comunicar com o servidor");
+        if (pedido.entregue) {
+          textoPedido.style.opacity = "0.5";
+          textoPedido.textContent += " ✔ entregue";
         }
-      });
 
-      item.appendChild(textoPedido);
-      item.appendChild(btnEntregar);
-      listaPedidos.appendChild(item);
-    });
+        /* =========================
+           BOTÃO ENTREGAR
+        ========================= */
+        const btnEntregar = document.createElement("button");
+
+        btnEntregar.textContent = pedido.entregue
+          ? "Entregue"
+          : "Marcar entregue";
+
+        btnEntregar.disabled = pedido.entregue;
+
+        btnEntregar.style.marginLeft = "10px";
+
+        btnEntregar.addEventListener("click", async () => {
+          try {
+            const res = await fetch(`${API_URL}/marcar_entregue`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ id: pedido.id }),
+            });
+
+            if (!res.ok) {
+              throw new Error("Erro ao atualizar pedido");
+            }
+
+            btnEntregar.textContent = "Entregue";
+            btnEntregar.disabled = true;
+
+            textoPedido.style.opacity = "0.5";
+          } catch (error) {
+            console.error(error);
+            alert("Erro ao comunicar com o servidor");
+          }
+        });
+
+        /* =========================
+           MONTAGEM
+        ========================= */
+        item.appendChild(textoPedido);
+        item.appendChild(btnEntregar);
+
+        listaPedidos.appendChild(item);
+      });
   } catch (error) {
     console.error("Erro geral:", error);
   }
 }
+
+/* =========================
+   AUTO UPDATE (TEMPO REAL SIMPLES)
+========================= */
 
 setInterval(buscarPedidos, 2000);
 

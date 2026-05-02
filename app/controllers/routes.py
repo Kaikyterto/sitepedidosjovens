@@ -5,16 +5,88 @@ from datetime import datetime
 cliente = Blueprint("cliente", __name__)
 
 # ======================
-# BUSCAR PEDIDOS
+# HEALTH CHECK
+# ======================
+@cliente.route("/health")
+def health():
+    print("Acordando servidor")
+    return jsonify({"status": "ok"})
+
+
+# ======================
+# PRODUTOS (FRONT BUSCA AQUI)
+# ======================
+@cliente.route("/produtos", methods=["GET"])
+def produtos():
+    try:
+        cursor.execute("""
+            SELECT nome, preco
+            FROM produtos
+            WHERE disponivel = TRUE
+            ORDER BY id ASC
+        """)
+        resultados = cursor.fetchall()
+
+        produtos = [
+            {
+                "nome": r[0],
+                "preco": float(r[1])
+            }
+            for r in resultados
+        ]
+
+        return jsonify({"produtos": produtos})
+
+    except Exception as e:
+        print("Erro ao buscar produtos:", e)
+        return jsonify({"erro": "Erro ao buscar produtos"}), 500
+
+
+# ======================
+# CRIAR PEDIDO (NOVO MODELO)
+# ======================
+@cliente.route("/pedido", methods=["POST"])
+def pedido():
+    dados = request.get_json(silent=True)
+
+    if not dados:
+        return jsonify({"erro": "JSON inválido"}), 400
+
+    nome = dados.get("nome")
+    produtos = dados.get("produtos")
+    montante = dados.get("montante")
+
+    if not nome or not produtos:
+        return jsonify({"erro": "Dados incompletos"}), 400
+
+    try:
+        for produto in produtos:
+            cursor.execute("""
+                INSERT INTO pedidosclientes (cliente, produto, data, entregue)
+                VALUES (%s, %s, %s, %s)
+            """, (nome, produto, datetime.now(), False))
+
+        conn.commit()
+
+        return jsonify({"status": "ok"})
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro ao salvar pedido:", e)
+        return jsonify({"erro": "Erro ao salvar pedido"}), 500
+
+
+# ======================
+# BUSCAR PEDIDOS (ADMIN)
 # ======================
 @cliente.route("/buscar_pedidos", methods=["GET"])
 def buscar_pedidos():
     try:
         cursor.execute("""
-            SELECT id, cliente, produto, entregue
+            SELECT id, cliente, produto, entregue, data
             FROM pedidosclientes
             WHERE data::date = CURRENT_DATE
-            AND entregue = FALSE
+            ORDER BY data ASC
         """)
         resultados = cursor.fetchall()
 
@@ -23,7 +95,8 @@ def buscar_pedidos():
                 "id": r[0],
                 "cliente": r[1],
                 "produto": r[2],
-                "entregue": r[3]
+                "entregue": r[3],
+                "data": r[4].isoformat() if r[4] else None
             }
             for r in resultados
         ]
@@ -34,37 +107,38 @@ def buscar_pedidos():
         conn.rollback()
         print("Erro ao buscar pedidos:", e)
         return jsonify({"erro": "Erro ao buscar pedidos"}), 500
-
-
+    
 # ======================
-# FAZER PEDIDO
+# ALTERAR DISPONIBILIDADE DO PRODUTO (ADMIN)
 # ======================
-@cliente.route("/pedir", methods=["POST"])
-def pedir():
+@cliente.route("/produto/disponibilidade", methods=["POST"])
+def alterar_disponibilidade():
     dados = request.get_json(silent=True)
 
     if not dados:
         return jsonify({"erro": "JSON inválido"}), 400
 
     nome = dados.get("nome")
-    produto = dados.get("produto")
+    disponivel = dados.get("disponivel")
 
-    if not nome or not produto:
+    if nome is None or disponivel is None:
         return jsonify({"erro": "Dados incompletos"}), 400
 
     try:
         cursor.execute("""
-            INSERT INTO pedidosclientes (cliente, produto, data)
-            VALUES (%s, %s, %s)
-        """, (nome, produto, datetime.now()))
+            UPDATE produtos
+            SET disponivel = %s
+            WHERE nome = %s
+        """, (disponivel, nome))
 
         conn.commit()
+
         return jsonify({"status": "ok"})
 
     except Exception as e:
         conn.rollback()
-        print("Erro ao salvar pedido:", e)
-        return jsonify({"erro": "Erro ao salvar pedido"}), 500
+        print("Erro ao atualizar disponibilidade:", e)
+        return jsonify({"erro": "Erro ao atualizar produto"}), 500
 
 
 # ======================
@@ -94,7 +168,7 @@ def marcar_entregue():
 
 
 # ======================
-# PAGAMENTO
+# PAGAMENTO PIX
 # ======================
 @cliente.route("/pagamento", methods=["POST"])
 def pagamento():
@@ -111,10 +185,10 @@ def pagamento():
 
     try:
         cursor.execute("""
-            INSERT INTO pagamentos (cliente, montante)
-            VALUES (%s, %s)
+            INSERT INTO pagamentos (cliente, montante, data)
+            VALUES (%s, %s, %s)
             RETURNING id
-        """, (cliente_nome, montante))
+        """, (cliente_nome, montante, datetime.now()))
 
         pagamento_id = cursor.fetchone()[0]
         conn.commit()
@@ -130,34 +204,41 @@ def pagamento():
         return jsonify({"erro": "Erro ao inserir pagamento"}), 500
 
 
-@cliente.route("/health")
-def health():
-    print("Acordando servidor")
-    return jsonify({"status": "ok"})
-
+# ======================
+# PESQUISA DE PEDIDOS
+# ======================
 @cliente.route("/pesquisar")
 def pesquisar():
 
-    cliente = request.args.get("nome")
+    cliente_nome = request.args.get("nome")
 
-    if not cliente:
+    if not cliente_nome:
         return jsonify({"erro": "Dados incompletos"}), 400
 
-    cliente = cliente.strip()
+    cliente_nome = cliente_nome.strip()
 
     try:
         cursor.execute("""
-            SELECT cliente, produto, data 
-            FROM pedidosclientes 
+            SELECT cliente, produto, data
+            FROM pedidosclientes
             WHERE LOWER(cliente) LIKE LOWER(%s)
             ORDER BY data ASC
-        """, (f"%{cliente}%",))
+        """, (f"%{cliente_nome}%",))
+
         resultados = cursor.fetchall()
+
     except Exception as e:
         conn.rollback()
         print("Erro ao pesquisar pedidos:", e)
         return jsonify({"erro": "Erro ao pesquisar pedidos"}), 500
 
-    pedidos = [{"cliente": r[0], "produto": r[1], "data": r[2]} for r in resultados]
+    pedidos = [
+        {
+            "cliente": r[0],
+            "produto": r[1],
+            "data": r[2].isoformat() if r[2] else None
+        }
+        for r in resultados
+    ]
 
     return jsonify(pedidos)

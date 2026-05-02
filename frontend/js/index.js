@@ -1,34 +1,22 @@
 const API_URL = "https://sitepedidosjovens.onrender.com";
 
-class Produto {
-  constructor(nome, preco) {
-    this.nome = nome;
-    this.preco = preco;
-  }
-}
+/* =========================
+   ESTADO GLOBAL
+========================= */
 
-const pix_mae = new Produto("pix de mãe", 23.0);
-const bolo_milho = new Produto("Bolo de milho", 3.0);
-const bolo_chocolate = new Produto("Bolo de chocolate", 3.0);
-const sopa = new Produto("Sopa", 3.0);
-const cookies_p = new Produto("Cookie P", 3.0);
-const cookies_m = new Produto("Cookie M", 6.0);
-const cookies_g = new Produto("Cookie G", 12.5);
-const brownie = new Produto("Brownie", 3.0);
-const brownie_texas = new Produto("Brownie Texas", 6.5);
-const cafe = new Produto("Café", 0.5);
-const cuzcuz = new Produto("Cuzcuz", 5.0);
-const refrigerante = new Produto("Refrigerante", 1.0);
-const torta = new Produto("Torta de Frango", 4.0);
-const xerem = new Produto("Xerém com galinha", 5.0);
-const tapioca = new Produto("Tapioca", 3.0);
+let produtos_hoje = [];
+let nome_cliente = "";
+let produtos_cliente = [];
+let total = 0;
 
-const produtos_hoje = [tapioca, cafe];
+/* =========================
+   ELEMENTOS DOM
+========================= */
 
-const div_principal = document.getElementById("principal");
 const btn_nome = document.getElementById("btn_nome");
 const nome_usuario = document.getElementById("nome_usuario");
 const caixa_nome = document.getElementById("caixa_nome");
+
 const cardapio = document.getElementById("cardapio");
 const div_conta = document.getElementById("div_conta");
 
@@ -38,6 +26,10 @@ const div_pix_copia_cola = document.getElementById("div_pix-copia-cola");
 const textarea_pix = document.getElementById("pix-copia-cola");
 const btn_copiar = document.getElementById("btn-copiar");
 
+/* =========================
+   UI FIXA
+========================= */
+
 const h1_total = document.createElement("h1");
 h1_total.id = "texto_total";
 h1_total.textContent = "Total: R$ 0,00";
@@ -46,9 +38,9 @@ const btn_fechar_pedido = document.createElement("button");
 btn_fechar_pedido.id = "btn_fechar_pedido";
 btn_fechar_pedido.textContent = "Fechar pedido";
 
-let nome_cliente = "";
-let produtos_cliente = [];
-let total = 0;
+/* =========================
+   LOGIN
+========================= */
 
 btn_nome.addEventListener("click", (e) => {
   e.preventDefault();
@@ -57,79 +49,117 @@ btn_nome.addEventListener("click", (e) => {
   if (!nome_cliente) return alert("Digite seu nome");
 
   caixa_nome.remove();
-  cardapio.style.display = "flex";
+  cardapio.style.display = "grid";
+
+  carregarProdutos();
 });
 
-produtos_hoje.forEach((produto) => {
-  const div_produto = document.createElement("div");
-  div_produto.classList.add("produto");
+/* =========================
+   CARREGAR PRODUTOS DO BACKEND
+========================= */
 
-  const span = document.createElement("span");
-  span.classList.add("texto_produto");
-  span.textContent = `${produto.nome} - ${produto.preco.toLocaleString(
-    "pt-BR",
-    {
-      style: "currency",
-      currency: "BRL",
-    }
-  )}`;
+async function carregarProdutos() {
+  try {
+    const res = await fetch(`${API_URL}/produtos`);
+    const data = await res.json();
 
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.classList.add("btn_produto");
+    produtos_hoje = data.produtos || [];
 
-  btn.addEventListener("click", () => {
-    produtos_cliente.push(produto);
+    renderizarProdutos();
+  } catch (err) {
+    console.error("Erro ao carregar produtos:", err);
+    alert("Erro ao carregar cardápio");
+  }
+}
 
-    total += produto.preco;
-    h1_total.textContent = `Total: ${total.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    })}`;
+/* =========================
+   RENDER CARDÁPIO
+========================= */
 
-    div_conta.style.display = "flex";
+function renderizarProdutos() {
+  cardapio.innerHTML = "";
 
-    let item = [...div_conta.children].find(
-      (el) => el.dataset?.nome === produto.nome
-    );
+  produtos_hoje.forEach((produto) => {
+    const div_produto = document.createElement("div");
+    div_produto.classList.add("produto");
 
-    if (item) {
-      let qtd = Number(item.dataset.qtd) + 1;
-      item.dataset.qtd = qtd;
-      item.querySelector(".qtd").textContent = `${qtd}x`;
-    } else {
-      const item_conta = document.createElement("div");
-      item_conta.classList.add("produto_conta");
-      item_conta.dataset.nome = produto.nome;
-      item_conta.dataset.qtd = 1;
+    const span = document.createElement("span");
+    span.textContent = `${produto.nome} - ${Number(
+      produto.preco
+    ).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
 
-      const nome = document.createElement("span");
-      nome.textContent = produto.nome;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.classList.add("btn_produto");
 
-      const qtd = document.createElement("span");
-      qtd.classList.add("qtd");
-      qtd.textContent = "1x";
+    btn.addEventListener("click", () => adicionarProduto(produto));
 
-      item_conta.append(nome, qtd);
-      if (div_conta.contains(h1_total)) div_conta.removeChild(h1_total);
-      if (div_conta.contains(btn_fechar_pedido))
-        div_conta.removeChild(btn_fechar_pedido);
-      div_conta.appendChild(item_conta);
-      div_conta.appendChild(h1_total);
-      div_conta.appendChild(btn_fechar_pedido);
-    }
+    div_produto.append(span, btn);
+    cardapio.appendChild(div_produto);
+  });
+}
+
+/* =========================
+   CARRINHO
+========================= */
+
+function adicionarProduto(produto) {
+  produtos_cliente.push(produto);
+  total += Number(produto.preco);
+
+  h1_total.textContent = `Total: ${total.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  })}`;
+
+  div_conta.style.display = "flex";
+
+  let item = [...div_conta.children].find(
+    (el) => el.dataset?.nome === produto.nome
+  );
+
+  if (item) {
+    let qtd = Number(item.dataset.qtd) + 1;
+    item.dataset.qtd = qtd;
+    item.querySelector(".qtd").textContent = `${qtd}x`;
+  } else {
+    const item_conta = document.createElement("div");
+    item_conta.classList.add("produto_conta");
+    item_conta.dataset.nome = produto.nome;
+    item_conta.dataset.qtd = 1;
+
+    const nome = document.createElement("span");
+    nome.textContent = produto.nome;
+
+    const qtd = document.createElement("span");
+    qtd.classList.add("qtd");
+    qtd.textContent = "1x";
+
+    item_conta.append(nome, qtd);
 
     if (!div_conta.contains(h1_total)) {
       div_conta.appendChild(h1_total);
     }
+
     if (!div_conta.contains(btn_fechar_pedido)) {
       div_conta.appendChild(btn_fechar_pedido);
     }
-  });
 
-  div_produto.append(span, btn);
-  cardapio.appendChild(div_produto);
-});
+    div_conta.appendChild(item_conta);
+  }
+
+  if (!div_conta.contains(h1_total)) {
+    div_conta.appendChild(h1_total);
+  }
+
+  if (!div_conta.contains(btn_fechar_pedido)) {
+    div_conta.appendChild(btn_fechar_pedido);
+  }
+}
+
+/* =========================
+   PIX HELPERS (igual seu)
+========================= */
 
 function crc16(payload) {
   let polinomio = 0x1021;
@@ -148,7 +178,7 @@ function crc16(payload) {
 }
 
 function gerarPix({ chave, nome, cidade, valor, txid }) {
-  const valorStr = valor.toFixed(2); // ponto decimal, não vírgula
+  const valorStr = valor.toFixed(2);
 
   const gui = "BR.GOV.BCB.PIX";
   const guiLength = gui.length.toString().padStart(2, "0");
@@ -158,40 +188,31 @@ function gerarPix({ chave, nome, cidade, valor, txid }) {
   const campo26Length = campo26Conteudo.length.toString().padStart(2, "0");
   const campo26 = `26${campo26Length}${campo26Conteudo}`;
 
-  const txidVal = txid.length > 25 ? txid.slice(0, 25) : txid;
+  const txidVal = txid.slice(0, 25);
   const txidLength = txidVal.length.toString().padStart(2, "0");
-  const campo62Conteudo = `05${txidLength}${txidVal}`;
-  const campo62Length = campo62Conteudo.length.toString().padStart(2, "0");
-  const campo62 = `62${campo62Length}${campo62Conteudo}`;
-
-  const nomeLength = nome.length.toString().padStart(2, "0");
-  const cidadeLength = cidade.length.toString().padStart(2, "0");
-  const valorLength = valorStr.length.toString().padStart(2, "0");
+  const campo62 = `62${(6 + txidVal.length)
+    .toString()
+    .padStart(2, "0")}050${txidLength}${txidVal}`;
 
   const payloadSemCRC =
-    "000201" +
-    "010212" +
+    "000201010212" +
     campo26 +
     "52040000" +
     "5303986" +
-    "54" +
-    valorLength +
-    valorStr +
-    "58" +
-    "02" +
-    "BR" +
-    "59" +
-    nomeLength +
-    nome +
-    "60" +
-    cidadeLength +
-    cidade +
+    `54${valorStr.length.toString().padStart(2, "0")}${valorStr}` +
+    "5802BR" +
+    `59${nome.length.toString().padStart(2, "0")}${nome}` +
+    `60${cidade.length.toString().padStart(2, "0")}${cidade}` +
     campo62 +
     "6304";
 
   const crc = crc16(payloadSemCRC);
   return payloadSemCRC + crc;
 }
+
+/* =========================
+   FINALIZAR PEDIDO
+========================= */
 
 btn_fechar_pedido.addEventListener("click", async () => {
   for (const produto of produtos_cliente) {
@@ -233,7 +254,7 @@ btn_fechar_pedido.addEventListener("click", async () => {
     nome: "Emily Natasha Mergulhao d",
     cidade: "SAO PAULO",
     valor: total,
-    txid: txid,
+    txid,
   });
 
   QRCode.toCanvas(document.getElementById("qrcode"), payload, { width: 250 });
