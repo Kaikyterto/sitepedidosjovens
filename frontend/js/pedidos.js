@@ -1,4 +1,4 @@
-const API_URL = "https://sitepedidosjovens-4gij.onrender.com";
+const API_URL = "https://sitepedidosjovens.onrender.com";
 
 async function buscarPedidos() {
   try {
