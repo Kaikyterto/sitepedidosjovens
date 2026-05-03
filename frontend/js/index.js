@@ -27,7 +27,7 @@ const textarea_pix = document.getElementById("pix-copia-cola");
 const btn_copiar = document.getElementById("btn-copiar");
 
 /* =========================
-   ELEMENTOS CRIADOS VIA JS
+   ELEMENTOS CRIADOS
 ========================= */
 
 const lista_carrinho = document.createElement("div");
@@ -41,7 +41,6 @@ const btn_fechar_pedido = document.createElement("button");
 btn_fechar_pedido.id = "btn_fechar_pedido";
 btn_fechar_pedido.textContent = "Fechar pedido";
 
-/* adiciona na sidebar */
 div_conta.appendChild(lista_carrinho);
 div_conta.appendChild(texto_total);
 div_conta.appendChild(btn_fechar_pedido);
@@ -75,7 +74,7 @@ async function carregarProdutos() {
 
     renderizarProdutos();
   } catch (err) {
-    console.error("Erro ao carregar produtos:", err);
+    console.error(err);
     alert("Erro ao carregar cardápio");
   }
 }
@@ -85,6 +84,8 @@ async function carregarProdutos() {
 ========================= */
 
 function renderizarProdutos() {
+  cardapio.innerHTML = ""; // 🔥 evita duplicação
+
   produtos_hoje.forEach((produto) => {
     const div_produto = document.createElement("div");
     div_produto.classList.add("produto");
@@ -109,7 +110,7 @@ function renderizarProdutos() {
 }
 
 /* =========================
-   CARRINHO (CORRIGIDO)
+   CARRINHO
 ========================= */
 
 function adicionarProduto(produto) {
@@ -152,11 +153,72 @@ function adicionarProduto(produto) {
 }
 
 /* =========================
+   PIX HELPERS (ESSENCIAL)
+========================= */
+
+function crc16(payload) {
+  let polinomio = 0x1021;
+  let resultado = 0xffff;
+
+  for (let i = 0; i < payload.length; i++) {
+    resultado ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if ((resultado <<= 1) & 0x10000) {
+        resultado ^= polinomio;
+      }
+      resultado &= 0xffff;
+    }
+  }
+
+  return resultado.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function gerarPix({ chave, nome, cidade, valor, txid }) {
+  const valorStr = Number(valor).toFixed(2);
+
+  const gui = "BR.GOV.BCB.PIX";
+  const guiLength = gui.length.toString().padStart(2, "0");
+
+  const chaveLength = chave.length.toString().padStart(2, "0");
+  const campo26Conteudo = `00${guiLength}${gui}01${chaveLength}${chave}`;
+  const campo26Length = campo26Conteudo.length.toString().padStart(2, "0");
+  const campo26 = `26${campo26Length}${campo26Conteudo}`;
+
+  const txidVal = txid.slice(0, 25);
+  const txidLength = txidVal.length.toString().padStart(2, "0");
+
+  const campo62 = `62${(6 + txidVal.length)
+    .toString()
+    .padStart(2, "0")}050${txidLength}${txidVal}`;
+
+  const payloadSemCRC =
+    "000201010212" +
+    campo26 +
+    "52040000" +
+    "5303986" +
+    `54${valorStr.length.toString().padStart(2, "0")}${valorStr}` +
+    "5802BR" +
+    `59${nome.length.toString().padStart(2, "0")}${nome}` +
+    `60${cidade.length.toString().padStart(2, "0")}${cidade}` +
+    campo62 +
+    "6304";
+
+  const crc = crc16(payloadSemCRC);
+
+  return payloadSemCRC + crc;
+}
+
+/* =========================
    FINALIZAR PEDIDO
 ========================= */
 
 btn_fechar_pedido.addEventListener("click", async () => {
   try {
+    if (produtos_cliente.length === 0) {
+      alert("Carrinho vazio");
+      return;
+    }
+
     const res = await fetch(`${API_URL}/pedido`, {
       method: "POST",
       headers: {
@@ -165,7 +227,6 @@ btn_fechar_pedido.addEventListener("click", async () => {
       body: JSON.stringify({
         nome: nome_cliente,
         produtos: produtos_cliente,
-        montante: total,
       }),
     });
 
@@ -188,6 +249,11 @@ btn_fechar_pedido.addEventListener("click", async () => {
     });
 
     const pagamento = await res_pag.json();
+
+    if (!pagamento.id_pag) {
+      alert("Erro no pagamento");
+      return;
+    }
 
     const txid = `PEDIDO${pagamento.id_pag.toString().padStart(5, "0")}`;
 
