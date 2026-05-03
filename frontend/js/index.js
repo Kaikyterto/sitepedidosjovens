@@ -84,7 +84,7 @@ async function carregarProdutos() {
 ========================= */
 
 function renderizarProdutos() {
-  cardapio.innerHTML = ""; // 🔥 evita duplicação
+  cardapio.innerHTML = "";
 
   produtos_hoje.forEach((produto) => {
     const div_produto = document.createElement("div");
@@ -153,7 +153,7 @@ function adicionarProduto(produto) {
 }
 
 /* =========================
-   PIX HELPERS (ESSENCIAL)
+   PIX HELPERS
 ========================= */
 
 function crc16(payload) {
@@ -177,19 +177,16 @@ function gerarPix({ chave, nome, cidade, valor, txid }) {
   const valorStr = Number(valor).toFixed(2);
 
   const gui = "BR.GOV.BCB.PIX";
-  const guiLength = gui.length.toString().padStart(2, "0");
-
-  const chaveLength = chave.length.toString().padStart(2, "0");
-  const campo26Conteudo = `00${guiLength}${gui}01${chaveLength}${chave}`;
-  const campo26Length = campo26Conteudo.length.toString().padStart(2, "0");
-  const campo26 = `26${campo26Length}${campo26Conteudo}`;
-
-  const txidVal = txid.slice(0, 25);
-  const txidLength = txidVal.length.toString().padStart(2, "0");
-
-  const campo62 = `62${(6 + txidVal.length)
+  const campo26 = `26${(4 + gui.length + 4 + chave.length)
     .toString()
-    .padStart(2, "0")}050${txidLength}${txidVal}`;
+    .padStart(2, "0")}00${gui.length
+    .toString()
+    .padStart(2, "0")}${gui}01${chave.length
+    .toString()
+    .padStart(2, "0")}${chave}`;
+
+  const nomeLimpo = nome.substring(0, 25);
+  const cidadeLimpa = cidade.substring(0, 15);
 
   const payloadSemCRC =
     "000201010212" +
@@ -198,14 +195,14 @@ function gerarPix({ chave, nome, cidade, valor, txid }) {
     "5303986" +
     `54${valorStr.length.toString().padStart(2, "0")}${valorStr}` +
     "5802BR" +
-    `59${nome.length.toString().padStart(2, "0")}${nome}` +
-    `60${cidade.length.toString().padStart(2, "0")}${cidade}` +
-    campo62 +
+    `59${nomeLimpo.length.toString().padStart(2, "0")}${nomeLimpo}` +
+    `60${cidadeLimpa.length.toString().padStart(2, "0")}${cidadeLimpa}` +
+    `62${(4 + txid.length).toString().padStart(2, "0")}05${txid.length
+      .toString()
+      .padStart(2, "0")}${txid}` +
     "6304";
 
-  const crc = crc16(payloadSemCRC);
-
-  return payloadSemCRC + crc;
+  return payloadSemCRC + crc16(payloadSemCRC);
 }
 
 /* =========================
@@ -219,6 +216,7 @@ btn_fechar_pedido.addEventListener("click", async () => {
       return;
     }
 
+    // pedido
     const res = await fetch(`${API_URL}/pedido`, {
       method: "POST",
       headers: {
@@ -237,6 +235,7 @@ btn_fechar_pedido.addEventListener("click", async () => {
       return;
     }
 
+    // pagamento
     const res_pag = await fetch(`${API_URL}/pagamento`, {
       method: "POST",
       headers: {
@@ -261,14 +260,14 @@ btn_fechar_pedido.addEventListener("click", async () => {
 
     const payload = gerarPix({
       chave: "c400a935-9063-4cea-8fc6-0e2cdb73cbe7",
-      nome: "Emily Natasha Mergulhao d",
+      nome: "EMILY NATASHA",
       cidade: "SAO PAULO",
       valor: total,
       txid,
     });
 
     QRCode.toCanvas(document.getElementById("qrcode"), payload, {
-      width: 250,
+      width: 220,
     });
 
     textarea_pix.value = payload;
@@ -278,8 +277,6 @@ btn_fechar_pedido.addEventListener("click", async () => {
       alert("PIX copiado!");
     };
 
-    cardapio.style.display = "none";
-    div_conta.style.display = "none";
     div_qrcode.style.display = "flex";
     div_pix_copia_cola.style.display = "flex";
     principal_qr.style.display = "flex";
