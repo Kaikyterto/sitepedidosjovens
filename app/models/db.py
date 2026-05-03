@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     preco NUMERIC(10,2) NOT NULL,
-    disponivel BOOLEAN NOT NULL DEFAULT TRUE
+    disponivel BOOLEAN NOT NULL DEFAULT FALSE
 );
 """)
 
@@ -70,19 +70,23 @@ conn.commit()
 # ======================
 # POPULAR PRODUTOS
 # ======================
-cursor.execute("SELECT COUNT(*) FROM produtos;")
-count = cursor.fetchone()[0]
 
-if count == 0:
+produtos_iniciais = [
+    ("Tapioca", 3.00),
+    ("Café", 0.50),
+    ("Bolo de milho", 3.00),
+    ("Bolo de chocolate", 3.00),
+    ("Mini-pastel", 1.00),
+    ("Promoção : 5 Mini-pastéis", 4.00),
+    ("Refrigerante", 1.00),
+]
+
+for nome, preco in produtos_iniciais:
     cursor.execute("""
-        INSERT INTO produtos (nome, preco) VALUES
-        ('Tapioca', 3.00),
-        ('Café', 0.50),
-        ('Bolo de milho', 3.00),
-        ('Bolo de chocolate', 3.00),
-        ('Mini-pastel', 1.00),
-        ('Promoção : 5 Mini-pastéis', 4.00),
-        ('Refrigerante', 1.00);
-    """)
-    conn.commit()
-    print("Produtos iniciais inseridos!")
+        INSERT INTO produtos (nome, preco)
+        VALUES (%s, %s)
+        ON CONFLICT (nome) DO NOTHING;
+    """, (nome, preco))
+
+conn.commit()
+print("Produtos iniciais garantidos no banco!")

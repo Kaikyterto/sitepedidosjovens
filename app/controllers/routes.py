@@ -53,7 +53,7 @@ def allprodutos():
 
     try:
         cursor.execute("""
-            SELECT id, nome, preco
+            SELECT id, nome, preco, disponivel
             FROM produtos
             ORDER BY id ASC
         """)
