@@ -84,6 +84,39 @@ def pedido():
     finally:
         cursor.close()
 
+@cliente.route("/marcar_entregue", methods=["POST"])
+def marcar_entregue():
+    cursor = get_cursor()
+    dados = request.get_json()
+
+    if not dados or "id" not in dados:
+        return jsonify({"erro": "ID obrigatório"}), 400
+
+    try:
+        cursor.execute("""
+            UPDATE pedidosclientes
+            SET entregue = TRUE
+            WHERE id = %s
+            RETURNING id
+        """, (dados["id"],))
+
+        atualizado = cursor.fetchone()
+
+        if not atualizado:
+            return jsonify({"erro": "Pedido não encontrado"}), 404
+
+        conn.commit()
+
+        return jsonify({
+            "status": "ok",
+            "id": atualizado[0]
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro marcar entregue:", e)
+        return jsonify({"erro": "Erro ao atualizar pedido"}), 500
+
 @cliente.route("/buscar_pedidos", methods=["GET"])
 def buscar_pedidos():
     cursor = get_cursor()
