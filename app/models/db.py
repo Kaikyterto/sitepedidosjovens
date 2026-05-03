@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # ======================
 # CONEXÃO SEGURA
 # ======================
@@ -14,33 +13,27 @@ def get_connection():
         sslmode="require"
     )
 
-
 conn = get_connection()
 
-
-# ⚠️ IMPORTANTE: cria cursor novo sempre que precisar
 def get_cursor():
     return conn.cursor()
 
-
 print("Conectado com sucesso!")
 
+cursor = get_cursor()
 
 # ======================
 # TABELA: PEDIDOS
 # ======================
-cursor = get_cursor()
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS pedidosclientes (
     id SERIAL PRIMARY KEY,
     cliente VARCHAR(100) NOT NULL,
     produto VARCHAR(100) NOT NULL,
-    data TIMESTAMP NOT NULL,
+    data TIMESTAMP NOT NULL DEFAULT NOW(),
     entregue BOOLEAN NOT NULL DEFAULT FALSE
 );
 """)
-
 
 # ======================
 # TABELA: PAGAMENTOS
@@ -55,6 +48,11 @@ CREATE TABLE IF NOT EXISTS pagamentos (
 """)
 
 
+cursor.execute("""
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS data TIMESTAMP DEFAULT NOW();
+""")
+
 # ======================
 # TABELA: PRODUTOS
 # ======================
@@ -67,12 +65,10 @@ CREATE TABLE IF NOT EXISTS produtos (
 );
 """)
 
-
 conn.commit()
 
-
 # ======================
-# POPULAR PRODUTOS (OPCIONAL)
+# POPULAR PRODUTOS
 # ======================
 cursor.execute("SELECT COUNT(*) FROM produtos;")
 count = cursor.fetchone()[0]
