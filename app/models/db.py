@@ -82,11 +82,9 @@ produtos_iniciais = [
 ]
 
 for nome, preco in produtos_iniciais:
-    cursor.execute("""
-        INSERT INTO produtos (nome, preco)
-        VALUES (%s, %s)
-        ON CONFLICT (nome) DO NOTHING;
-    """, (nome, preco))
+    cursor.execute("SELECT 1 FROM produtos WHERE nome = %s;", (nome,))
+    existe = cursor.fetchone()
+    if not existe:
+        cursor.execute("INSERT INTO produtos (nome, preco) VALUES (%s, %s);", (nome, preco))
 
 conn.commit()
-print("Produtos iniciais garantidos no banco!")
