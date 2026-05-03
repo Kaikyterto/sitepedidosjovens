@@ -51,51 +51,6 @@ body {
 }
 
 /* =======================
-   ANÚNCIO
-======================= */
-
-#fundo_anuncio {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 99999;
-}
-
-#anuncio {
-  width: 80%;
-  height: 80%;
-
-  border-radius: 14px;
-  background-image: url("./anuncio.jpg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-
-  box-shadow: 0 0 20px rgba(255, 255, 0, 0.3);
-}
-
-/* fechar */
-.cancelar {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-
-  width: 40px;
-  height: 40px;
-
-  background: red;
-  color: white;
-  border: none;
-  border-radius: 8px;
-
-  cursor: pointer;
-}
-
-/* =======================
    TEXTO
 ======================= */
 
@@ -113,7 +68,7 @@ form {
 }
 
 /* =======================
-   CARDÁPIO (CORRIGIDO)
+   CARDÁPIO
 ======================= */
 
 #cardapio {
@@ -175,7 +130,7 @@ form {
 }
 
 /* =======================
-   CARRINHO
+   CARRINHO (CORRIGIDO DE VERDADE)
 ======================= */
 
 #div_conta {
@@ -188,16 +143,24 @@ form {
   height: 100vh;
 
   background: #14213d;
-  padding: 15px;
-  gap: 10px;
 
   display: none;
   flex-direction: column;
 
-  overflow-y: auto;
   z-index: 999;
-
   box-shadow: -5px 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* lista scrollável */
+#lista_carrinho {
+  flex: 1;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 15px;
 }
 
 /* item carrinho */
@@ -213,12 +176,19 @@ form {
   border-radius: 8px;
 }
 
+/* área fixa inferior */
+#resumo_carrinho {
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #14213d;
+}
+
 /* total */
 #texto_total {
-  margin-top: auto;
-  font-size: 28px;
+  font-size: 26px;
   text-align: center;
   color: #ffea00;
+  margin-bottom: 10px;
 }
 
 /* botão finalizar */

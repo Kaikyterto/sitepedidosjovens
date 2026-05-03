@@ -3,16 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App jovens</title>
+    <title>App Jovens</title>
 
     <link rel="stylesheet" href="css/index.css" />
   </head>
 
   <body>
     <!-- =======================
-         LOGIN
+         LAYOUT PRINCIPAL
     ======================== -->
     <div id="principal">
+      <!-- =======================
+           LOGIN
+      ======================== -->
       <div id="caixa_nome">
         <h1>Bem-vindo ao App Jovens</h1>
 
@@ -31,22 +34,20 @@
       </div>
 
       <!-- =======================
-           CARDÁPIO (DINÂMICO)
+           CARDÁPIO (JS PREENCHE)
       ======================== -->
-      <div id="cardapio" style="display: none">
-        <h2 style="color: #ffea00; text-align: center">Cardápio</h2>
-      </div>
+      <div id="cardapio" style="display: none"></div>
 
       <!-- =======================
            CARRINHO (SIDEBAR)
       ======================== -->
-      <div id="div_conta">
+      <div id="div_conta" style="display: none">
         <h2 style="color: #ffea00; text-align: center">Seu pedido</h2>
       </div>
     </div>
 
     <!-- =======================
-         PIX AREA
+         PIX
     ======================== -->
     <div id="principal_qr" style="display: none">
       <div id="div_qrcode">
