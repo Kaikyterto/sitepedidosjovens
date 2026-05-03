@@ -81,7 +81,7 @@ async function carregarProdutos() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              nome: p.id,
+              id: p.id,
               disponivel: novoEstado,
             }),
           });
