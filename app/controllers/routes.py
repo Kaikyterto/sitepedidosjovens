@@ -147,7 +147,48 @@ def buscar_pedidos():
     except Exception as e:
         conn.rollback()
         print("Erro buscar pedidos abertos:", e)
-        return jsonify({"erro": "Erro ao buscar pedidos"}), 500  
+        return jsonify({"erro": "Erro ao buscar pedidos"}), 500
+    
+@cliente.route("/produto/disponibilidade", methods=["POST"])
+def alterar_disponibilidade():
+    cursor = get_cursor()
+    dados = request.get_json()
+
+    # validação
+    if not dados:
+        return jsonify({"erro": "JSON inválido"}), 400
+
+    produto_id = dados.get("id")
+    disponivel = dados.get("disponivel")
+
+    if produto_id is None or disponivel is None:
+        return jsonify({"erro": "Dados incompletos"}), 400
+
+    try:
+        cursor.execute("""
+            UPDATE produtos
+            SET disponivel = %s
+            WHERE id = %s
+            RETURNING id, disponivel
+        """, (bool(disponivel), produto_id))
+
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            return jsonify({"erro": "Produto não encontrado"}), 404
+
+        conn.commit()
+
+        return jsonify({
+            "status": "ok",
+            "id": resultado[0],
+            "disponivel": resultado[1]
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro disponibilidade:", e)
+        return jsonify({"erro": "Erro ao atualizar produto"}), 500
 
 
 # ======================

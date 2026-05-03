@@ -28,7 +28,7 @@ async function buscarPedidos() {
         ========================= */
         const textoPedido = document.createElement("span");
 
-        textoPedido.textContent = `👤 ${pedido.cliente} | 🍔 ${pedido.produto}`;
+        textoPedido.textContent = `👤 ${pedido.cliente} | ${pedido.produto}`;
 
         if (pedido.entregue) {
           textoPedido.style.opacity = "0.5";
