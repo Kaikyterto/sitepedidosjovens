@@ -133,6 +133,31 @@ form {
    CARRINHO (CORRIGIDO DE VERDADE)
 ======================= */
 
+#btn_toggle_carrinho {
+  position: fixed;
+  bottom: 90%;
+  right: 10px;
+
+  background: #ffea00;
+  color: #0d1b2a;
+
+  border: none;
+  border-radius: 50px;
+
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: bold;
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+
+  z-index: 1000;
+}
+
+#btn_toggle_carrinho:hover {
+  background: #ffd700;
+}
+
 #div_conta {
   position: fixed;
   right: 0;

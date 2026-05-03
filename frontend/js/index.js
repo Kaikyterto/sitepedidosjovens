@@ -8,6 +8,7 @@ let produtos_hoje = [];
 let nome_cliente = "";
 let produtos_cliente = [];
 let total = 0;
+carrinho_criado = false;
 
 /* =========================
    ELEMENTOS DOM
@@ -115,6 +116,24 @@ function renderizarProdutos() {
 
 function adicionarProduto(produto) {
   div_conta.style.display = "flex";
+
+  if (carrinho_criado == false) {
+    const btn_toggle_carrinho = document.createElement("button");
+    btn_toggle_carrinho.id = "btn_toggle_carrinho";
+    carrinho_criado = true;
+    document.body.appendChild(btn_toggle_carrinho);
+  }
+
+  /* estado aberto/fechado */
+  let carrinho_aberto = true;
+  btn_toggle_carrinho.textContent = carrinho_aberto ? "X" : "🛒";
+
+  btn_toggle_carrinho.addEventListener("click", () => {
+    carrinho_aberto = !carrinho_aberto;
+
+    div_conta.style.display = carrinho_aberto ? "flex" : "none";
+    btn_toggle_carrinho.textContent = carrinho_aberto ? "X" : "🛒";
+  });
 
   total += Number(produto.preco);
 
