@@ -1,27 +1,33 @@
+/* ======================
+   PRINCIPAL
+====================== */
 #principal {
   min-height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* alinhamento superior */
   background-color: #0d1b2a;
   padding: 20px;
   box-sizing: border-box;
 }
 
-/* 🔥 NOVO CONTAINER PRINCIPAL */
+/* 🔥 CONTAINER PRINCIPAL */
 #painel {
   display: flex;
   gap: 20px;
   align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap; /* responsivo */
+  max-width: 1200px; /* centralizado */
+  width: 100%;
 }
 
 /* ======================
    BLOCO PEDIDOS
 ====================== */
 #bloco-pedidos {
+  flex: 1 1 450px; /* ocupa espaço proporcional */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -31,7 +37,7 @@
    BLOCO PRODUTOS
 ====================== */
 #bloco-produtos {
-  width: 300px;
+  flex: 1 1 300px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -40,14 +46,15 @@
   background: #2d3e5f;
   border-radius: 15px;
   color: white;
+  min-height: 200px;
 }
 
 /* ======================
    LISTA PEDIDOS
 ====================== */
 #listaPedidos {
-  height: 400px;
-  width: 450px;
+  flex: 1 1 auto;
+  min-height: 400px;
 
   display: flex;
   flex-direction: column;
@@ -85,10 +92,35 @@
    INPUT
 ====================== */
 #pesquisar-pedidos {
-  width: 450px;
+  width: 100%;
   padding: 12px;
 
   border: none;
   border-radius: 10px;
   outline: none;
+}
+
+/* ======================
+   RESPONSIVIDADE
+====================== */
+@media (max-width: 768px) {
+  #painel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #bloco-pedidos,
+  #bloco-produtos {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #listaPedidos {
+    width: 100%;
+    min-height: auto;
+  }
+
+  #pesquisar-pedidos {
+    width: 100%;
+  }
 }

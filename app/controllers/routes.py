@@ -47,6 +47,36 @@ def produtos():
     finally:
         cursor.close() 
 
+@cliente.route("/allprodutos", methods=["GET"])
+def allprodutos():
+    cursor = get_cursor()
+
+    try:
+        cursor.execute("""
+            SELECT id, nome, preco
+            FROM produtos
+            ORDER BY id ASC
+        """)
+
+        dados = cursor.fetchall()
+
+        produtos = [
+            {
+                "id": r[0],
+                "nome": r[1],
+                "preco": float(r[2])
+            }
+            for r in dados
+        ]
+
+        return jsonify({"produtos": produtos})
+
+    except Exception as e:
+        print("Erro produtos:", e)
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        cursor.close()
 
 # ======================
 # CRIAR PEDIDO
@@ -238,4 +268,35 @@ def pagamento():
         return jsonify({"erro": str(e)}), 500
 
     finally:
-        cursor.close() 
+        cursor.close()
+
+# ======================
+# PESQUISAR PEDIDOS
+# ======================
+@cliente.route("/pesquisar", methods=["GET"])
+def pesquisar_pedidos():
+    cursor = get_cursor()
+    nome = request.args.get("nome", "").strip().lower()
+    try:
+        cursor.execute("""
+            SELECT id, cliente, produto, data
+            FROM pedidosclientes
+            WHERE LOWER(cliente) LIKE %s
+            ORDER BY data DESC
+        """, (f"%{nome}%",))
+        resultados = cursor.fetchall()
+        pedidos = [
+            {
+                "id": r[0],
+                "cliente": r[1],
+                "produto": r[2],
+                "data": r[3].isoformat() if r[3] else None
+            }
+            for r in resultados
+        ]
+        return jsonify(pedidos)
+    except Exception as e:
+        print("Erro pesquisar pedidos:", e)
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        cursor.close()

@@ -23,7 +23,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 
   gap: 15px;
   padding: 10px;
@@ -72,37 +72,35 @@ form {
 ======================= */
 
 #cardapio {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 80%;
   max-width: 700px;
   height: 80vh;
-
-  gap: 10px;
   padding: 10px;
-
   background: #1b263b;
   border-radius: 20px;
-
   overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
-/* produto card */
 .produto {
   background: #0d1b2a;
   color: #ffea00;
-
   padding: 10px;
   border-radius: 14px;
 
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 8px;
 
   transition: 0.2s;
-  min-height: 90px;
+  min-height: 60px;
+
   word-break: break-word;
 }
 

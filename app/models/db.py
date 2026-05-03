@@ -80,7 +80,8 @@ if count == 0:
         ('Café', 0.50),
         ('Bolo de milho', 3.00),
         ('Bolo de chocolate', 3.00),
-        ('Pastel', 1.00),
+        ('Mini-pastel', 1.00),
+        ('Promoção : 5 Mini-pastéis', 4.00),
         ('Refrigerante', 1.00);
     """)
     conn.commit()

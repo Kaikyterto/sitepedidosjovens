@@ -49,7 +49,7 @@ pesquisarPedido.addEventListener("input", async (evt) => {
 ========================= */
 async function carregarProdutos() {
   try {
-    const res = await fetch(`${API_URL}/produtos`);
+    const res = await fetch(`${API_URL}/allprodutos`);
 
     if (!res.ok) throw new Error("Erro ao buscar produtos");
 
