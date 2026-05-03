@@ -82,7 +82,39 @@ def pedido():
         return jsonify({"erro": str(e)}), 500
 
     finally:
-        cursor.close()   
+        cursor.close()
+
+@cliente.route("/buscar_pedidos", methods=["GET"])
+def buscar_pedidos():
+    cursor = get_cursor()
+
+    try:
+        cursor.execute("""
+            SELECT id, cliente, produto, entregue, data
+            FROM pedidosclientes
+            WHERE entregue = FALSE
+            ORDER BY data DESC
+        """)
+
+        resultados = cursor.fetchall()
+
+        pedidos = [
+            {
+                "id": r[0],
+                "cliente": r[1],
+                "produto": r[2],
+                "entregue": r[3],
+                "data": r[4].isoformat() if r[4] else None
+            }
+            for r in resultados
+        ]
+
+        return jsonify(pedidos)
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro buscar pedidos abertos:", e)
+        return jsonify({"erro": "Erro ao buscar pedidos"}), 500  
 
 
 # ======================

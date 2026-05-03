@@ -255,6 +255,8 @@ btn_fechar_pedido.addEventListener("click", async () => {
       return;
     }
 
+    document.getElementById("principal").style.display = "none";
+
     const txid = `PEDIDO${pagamento.id_pag.toString().padStart(5, "0")}`;
 
     const payload = gerarPix({

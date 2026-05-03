@@ -211,75 +211,45 @@ form {
 }
 
 /* =======================
-   PIX
+   PIX 
 ======================= */
 
+#principal_qr {
+  display: none;
+
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* caixas */
 #div_qrcode,
 #div_pix-copia-cola {
   display: none;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 14px;
 
   width: 300px;
   max-width: 90vw;
+
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 #qrcode {
+  display: block;
+  margin: 0 auto;
+
   width: 180px !important;
   height: 180px !important;
-}
-
-#pix-copia-cola {
-  width: 100%;
-  padding: 8px;
-
-  border-radius: 8px;
-  border: 1px solid #ccc;
-
-  font-size: 12px;
-}
-
-#btn-copiar {
-  width: 100%;
-  padding: 10px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #2ecc71;
-  color: white;
-  font-weight: bold;
-
-  cursor: pointer;
-}
-
-#btn-copiar:hover {
-  background: #27ae60;
-}
-
-/* =======================
-   MOBILE
-======================= */
-
-@media (max-width: 768px) {
-  #principal {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #cardapio {
-    width: 100%;
-    height: auto;
-  }
-
-  #div_conta {
-    position: relative;
-    width: 100%;
-    height: auto;
-  }
 }
