@@ -80,6 +80,7 @@ produtos_iniciais = [
     ("Promoção : 5 Mini-pastéis", 4.00),
     ("Refrigerante", 1.00),
     ("Hambúrguer", 10.00),
+    ("Brownie", 3.00),
 ]
 
 for nome, preco in produtos_iniciais:
