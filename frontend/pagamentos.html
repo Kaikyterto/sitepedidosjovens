@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pagamentos</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+
+      .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        border-radius: 8px;
+      }
+
+      button {
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      .pago {
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pagamentos</h1>
+
+    <div id="listaPagamentos"></div>
+
+    <script>
+      const API_URL = "https://sitepedidosjovens.onrender.com";
+
+      const listaPagamentos = document.getElementById("listaPagamentos");
+
+      function formatarData(data) {
+        return new Date(data).toLocaleString("pt-BR");
+      }
+
+      async function carregarPagamentos() {
+        try {
+          const res = await fetch(`${API_URL}/pagamentos`);
+
+          if (!res.ok) {
+            throw new Error("Erro ao buscar pagamentos");
+          }
+
+          const pagamentos = await res.json();
+
+          listaPagamentos.innerHTML = "";
+
+          pagamentos.forEach((p) => {
+            const item = document.createElement("div");
+            item.classList.add("item");
+
+            if (p.pago) {
+              item.classList.add("pago");
+            }
+
+            const texto = document.createElement("span");
+
+            texto.innerHTML = `
+                <strong>${p.cliente}</strong><br>
+                Valor: R$ ${Number(p.montante).toFixed(2)}<br>
+                Data: ${formatarData(p.data)}<br>
+                Status: ${p.pago ? "Pago" : "Pendente"}
+            `;
+
+            const btn = document.createElement("button");
+
+            btn.textContent = p.pago ? "Pago" : "Marcar como pago";
+            btn.disabled = p.pago;
+
+            btn.addEventListener("click", async () => {
+              try {
+                const resposta = await fetch(`${API_URL}/pagamento/pago`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    id: p.id,
+                    pago: true,
+                  }),
+                });
+
+                if (!resposta.ok) {
+                  throw new Error("Erro ao atualizar");
+                }
+
+                carregarPagamentos();
+              } catch (err) {
+                console.error(err);
+                alert("Erro ao marcar pagamento");
+              }
+            });
+
+            item.appendChild(texto);
+            item.appendChild(btn);
+
+            listaPagamentos.appendChild(item);
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      carregarPagamentos();
+    </script>
+  </body>
+</html>

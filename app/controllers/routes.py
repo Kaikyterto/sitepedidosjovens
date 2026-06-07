@@ -301,3 +301,79 @@ def pesquisar_pedidos():
         return jsonify({"erro": str(e)}), 500
     finally:
         cursor.close()
+
+@cliente.route("/pagamento/pago", methods=["POST"])
+def alterar_pago():
+    cursor = get_cursor()
+    dados = request.get_json()
+
+    if not dados:
+        return jsonify({"erro": "JSON inválido"}), 400
+
+    pagamento_id = dados.get("id")
+    pago = dados.get("pago")
+
+    if pagamento_id is None or pago is None:
+        return jsonify({"erro": "Dados incompletos"}), 400
+
+    try:
+        cursor.execute("""
+            UPDATE pagamentos
+            SET pago = %s
+            WHERE id = %s
+            RETURNING id, pago
+        """, (bool(pago), pagamento_id))
+
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            return jsonify({"erro": "Pagamento não encontrado"}), 404
+
+        conn.commit()
+
+        return jsonify({
+            "status": "ok",
+            "id": resultado[0],
+            "pago": resultado[1]
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("Erro alterar pago:", e)
+        return jsonify({"erro": "Erro ao atualizar pagamento"}), 500
+
+    finally:
+        cursor.close()
+
+@cliente.route("/pagamentos", methods=["GET"])
+def listar_pagamentos():
+    cursor = get_cursor()
+
+    try:
+        cursor.execute("""
+            SELECT id, cliente, montante, pago, data
+            FROM pagamentos
+            ORDER BY data DESC
+        """)
+
+        resultados = cursor.fetchall()
+
+        pagamentos = [
+            {
+                "id": r[0],
+                "cliente": r[1],
+                "montante": float(r[2]),
+                "pago": bool(r[3]),
+                "data": r[4].isoformat() if r[4] else None
+            }
+            for r in resultados
+        ]
+
+        return jsonify(pagamentos)
+
+    except Exception as e:
+        print("Erro listar pagamentos:", e)
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        cursor.close()
