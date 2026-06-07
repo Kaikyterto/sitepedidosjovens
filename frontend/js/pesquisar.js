@@ -68,6 +68,8 @@ async function carregarProdutos() {
 
       const btn = document.createElement("button");
 
+      console.log(p);
+
       if (
         p.disponivel === true ||
         p.disponivel === "true" ||
