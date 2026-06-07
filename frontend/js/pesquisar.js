@@ -68,7 +68,11 @@ async function carregarProdutos() {
 
       const btn = document.createElement("button");
 
-      if (p.disponivel === true || p.disponivel === "true") {
+      if (
+        p.disponivel === true ||
+        p.disponivel === "true" ||
+        p.disponivel === "TRUE"
+      ) {
         btn.textContent = "Desativar";
       } else {
         btn.textContent = "ativar";
