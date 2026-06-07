@@ -68,8 +68,11 @@ async function carregarProdutos() {
 
       const btn = document.createElement("button");
 
-      // estado visual
-      btn.textContent = p.disponivel ? "Desativar" : "Ativar";
+      if (p.disponivel === true || p.disponivel === "true") {
+        btn.textContent = "Desativar";
+      } else {
+        btn.textContent = "ativar";
+      }
 
       btn.addEventListener("click", async () => {
         const novoEstado = !p.disponivel;
