@@ -64,7 +64,8 @@ def allprodutos():
             {
                 "id": r[0],
                 "nome": r[1],
-                "preco": float(r[2])
+                "preco": float(r[2]),
+                "disponivel": bool(r[3])
             }
             for r in dados
         ]
