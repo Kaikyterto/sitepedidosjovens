@@ -8,6 +8,22 @@ const pesquisarPedido = document.getElementById("pesquisar-pedidos");
 const listaPedidos = document.getElementById("listaPedidos");
 
 /* =========================
+  FORMATAR DATA
+========================= */
+
+function formatarData(data) {
+  const d = new Date(data);
+
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/* =========================
    PESQUISA DE PEDIDOS
 ========================= */
 pesquisarPedido.addEventListener("input", async (evt) => {
@@ -34,7 +50,9 @@ pesquisarPedido.addEventListener("input", async (evt) => {
       item.classList.add("item");
 
       const texto = document.createElement("span");
-      texto.textContent = `${p.cliente} - ${p.produto} - ${p.data}`;
+      texto.textContent = `${p.cliente} - ${p.produto} - ${formatarData(
+        p.data
+      )}`;
 
       item.appendChild(texto);
       listaPedidos.appendChild(item);
