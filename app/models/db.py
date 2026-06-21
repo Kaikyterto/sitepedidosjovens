@@ -85,6 +85,7 @@ produtos_iniciais = [
     ("Cookie P", 3.00),
     ("Cookie M", 6.00),
     ("Cookie G", 12.50),
+    ("Cuzcuz", 4.00),
 ]
 
 for nome, preco in produtos_iniciais:
