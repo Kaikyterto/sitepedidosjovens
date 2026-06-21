@@ -1,8 +1,10 @@
 from flask import request, Blueprint, jsonify
-from app.models.db import get_cursor, conn
+from app.models.db import get_cursor
 from datetime import datetime
 
+
 cliente = Blueprint("cliente", __name__)
+
 
 # ======================
 # HEALTH
@@ -17,7 +19,8 @@ def health():
 # ======================
 @cliente.route("/produtos", methods=["GET"])
 def produtos():
-    cursor = get_cursor()
+
+    cursor, conn = get_cursor()
 
     try:
         cursor.execute("""
@@ -45,11 +48,15 @@ def produtos():
         return jsonify({"erro": str(e)}), 500
 
     finally:
-        cursor.close() 
+        cursor.close()
+        conn.close()
+
+
 
 @cliente.route("/allprodutos", methods=["GET"])
 def allprodutos():
-    cursor = get_cursor()
+
+    cursor, conn = get_cursor()
 
     try:
         cursor.execute("""
@@ -73,153 +80,278 @@ def allprodutos():
         return jsonify({"produtos": produtos})
 
     except Exception as e:
-        print("Erro produtos:", e)
+        print("Erro allprodutos:", e)
         return jsonify({"erro": str(e)}), 500
 
     finally:
         cursor.close()
+        conn.close()
+
+
 
 # ======================
 # CRIAR PEDIDO
 # ======================
 @cliente.route("/pedido", methods=["POST"])
 def pedido():
-    cursor = get_cursor()
+
+    cursor, conn = get_cursor()
+
     dados = request.get_json(silent=True)
 
     if not dados:
         return jsonify({"erro": "JSON inválido"}), 400
 
+
     nome = dados.get("nome")
     produtos = dados.get("produtos")
+
 
     if not nome or not isinstance(produtos, list) or len(produtos) == 0:
         return jsonify({"erro": "Carrinho vazio"}), 400
 
+
     try:
+
         for produto in produtos:
+
             cursor.execute("""
-                INSERT INTO pedidosclientes (cliente, produto, data, entregue)
-                VALUES (%s, %s, %s, FALSE)
-            """, (nome, produto, datetime.now()))
+                INSERT INTO pedidosclientes
+                (cliente, produto, data, entregue)
 
-        conn.commit()
+                VALUES (%s,%s,%s,FALSE)
+            """,
+            (
+                nome,
+                produto,
+                datetime.now()
+            ))
 
-        return jsonify({"status": "ok"})
-
-    except Exception as e:
-        conn.rollback()
-        print("Erro pedido:", e)
-        return jsonify({"erro": str(e)}), 500
-
-    finally:
-        cursor.close()
-
-@cliente.route("/marcar_entregue", methods=["POST"])
-def marcar_entregue():
-    cursor = get_cursor()
-    dados = request.get_json()
-
-    if not dados or "id" not in dados:
-        return jsonify({"erro": "ID obrigatório"}), 400
-
-    try:
-        cursor.execute("""
-            UPDATE pedidosclientes
-            SET entregue = TRUE
-            WHERE id = %s
-            RETURNING id
-        """, (dados["id"],))
-
-        atualizado = cursor.fetchone()
-
-        if not atualizado:
-            return jsonify({"erro": "Pedido não encontrado"}), 404
 
         conn.commit()
 
         return jsonify({
-            "status": "ok",
-            "id": atualizado[0]
+            "status":"ok"
         })
 
-    except Exception as e:
-        conn.rollback()
-        print("Erro marcar entregue:", e)
-        return jsonify({"erro": "Erro ao atualizar pedido"}), 500
-
-@cliente.route("/buscar_pedidos", methods=["GET"])
-def buscar_pedidos():
-    cursor = get_cursor()
-
-    try:
-        cursor.execute("""
-            SELECT id, cliente, produto, entregue, data
-            FROM pedidosclientes
-            WHERE entregue = FALSE
-            ORDER BY data DESC
-        """)
-
-        resultados = cursor.fetchall()
-
-        pedidos = [
-            {
-                "id": r[0],
-                "cliente": r[1],
-                "produto": r[2],
-                "entregue": r[3],
-                "data": r[4].isoformat() if r[4] else None
-            }
-            for r in resultados
-        ]
-
-        return jsonify(pedidos)
 
     except Exception as e:
+
         conn.rollback()
-        print("Erro buscar pedidos abertos:", e)
-        return jsonify({"erro": "Erro ao buscar pedidos"}), 500
-    
-@cliente.route("/produto/disponibilidade", methods=["POST"])
-def alterar_disponibilidade():
-    cursor = get_cursor()
+
+        print("Erro pedido:",e)
+
+        return jsonify({
+            "erro":str(e)
+        }),500
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
+
+
+# ======================
+# MARCAR ENTREGUE
+# ======================
+@cliente.route("/marcar_entregue", methods=["POST"])
+def marcar_entregue():
+
+    cursor, conn = get_cursor()
+
     dados = request.get_json()
 
-    # validação
-    if not dados:
-        return jsonify({"erro": "JSON inválido"}), 400
 
-    produto_id = dados.get("id")
-    disponivel = dados.get("disponivel")
+    if not dados or "id" not in dados:
+        return jsonify({"erro":"ID obrigatório"}),400
 
-    if produto_id is None or disponivel is None:
-        return jsonify({"erro": "Dados incompletos"}), 400
 
     try:
+
         cursor.execute("""
-            UPDATE produtos
-            SET disponivel = %s
-            WHERE id = %s
-            RETURNING id, disponivel
-        """, (bool(disponivel), produto_id))
+            UPDATE pedidosclientes
+
+            SET entregue = TRUE
+
+            WHERE id=%s
+
+            RETURNING id
+        """,
+        (dados["id"],))
+
 
         resultado = cursor.fetchone()
 
+
         if not resultado:
-            return jsonify({"erro": "Produto não encontrado"}), 404
+            return jsonify({
+                "erro":"Pedido não encontrado"
+            }),404
+
+
 
         conn.commit()
 
+
         return jsonify({
-            "status": "ok",
-            "id": resultado[0],
-            "disponivel": resultado[1]
+            "status":"ok",
+            "id":resultado[0]
         })
 
+
     except Exception as e:
+
         conn.rollback()
-        print("Erro disponibilidade:", e)
-        return jsonify({"erro": "Erro ao atualizar produto"}), 500
+
+        print("Erro entregar:",e)
+
+        return jsonify({
+            "erro":str(e)
+        }),500
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
+
+
+
+# ======================
+# BUSCAR PEDIDOS
+# ======================
+@cliente.route("/buscar_pedidos", methods=["GET"])
+def buscar_pedidos():
+
+    cursor, conn = get_cursor()
+
+
+    try:
+
+        cursor.execute("""
+            SELECT id, cliente, produto, entregue, data
+
+            FROM pedidosclientes
+
+            WHERE entregue = FALSE
+
+            ORDER BY data DESC
+        """)
+
+
+        resultados = cursor.fetchall()
+
+
+        pedidos = [
+
+            {
+                "id":r[0],
+                "cliente":r[1],
+                "produto":r[2],
+                "entregue":r[3],
+                "data":r[4].isoformat()
+            }
+
+            for r in resultados
+
+        ]
+
+
+        return jsonify(pedidos)
+
+
+    except Exception as e:
+
+        print("Erro pedidos:",e)
+
+        return jsonify({
+            "erro":str(e)
+        }),500
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
+
+
+# ======================
+# ALTERAR DISPONIBILIDADE
+# ======================
+@cliente.route("/produto/disponibilidade", methods=["POST"])
+def alterar_disponibilidade():
+
+    cursor, conn = get_cursor()
+
+
+    dados=request.get_json()
+
+
+    if not dados:
+        return jsonify({"erro":"JSON inválido"}),400
+
+
+
+    try:
+
+        cursor.execute("""
+            UPDATE produtos
+
+            SET disponivel=%s
+
+            WHERE id=%s
+
+            RETURNING id, disponivel
+        """,
+        (
+            bool(dados["disponivel"]),
+            dados["id"]
+        ))
+
+
+        resultado=cursor.fetchone()
+
+
+        if not resultado:
+            return jsonify({
+                "erro":"Produto não encontrado"
+            }),404
+
+
+        conn.commit()
+
+
+        return jsonify({
+
+            "status":"ok",
+
+            "id":resultado[0],
+
+            "disponivel":resultado[1]
+
+        })
+
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("Erro disponibilidade:",e)
+
+        return jsonify({
+            "erro":str(e)
+        }),500
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
 
 
 # ======================
@@ -227,153 +359,70 @@ def alterar_disponibilidade():
 # ======================
 @cliente.route("/pagamento", methods=["POST"])
 def pagamento():
-    cursor = get_cursor()
-    dados = request.get_json(silent=True)
+
+
+    cursor, conn = get_cursor()
+
+
+    dados=request.get_json(silent=True)
+
 
     if not dados:
-        return jsonify({"erro": "JSON inválido"}), 400
+        return jsonify({
+            "erro":"JSON inválido"
+        }),400
 
-    nome = dados.get("nome")
-    montante = dados.get("montante")
 
-    if not nome or montante is None:
-        return jsonify({"erro": "Dados incompletos"}), 400
 
     try:
-        
-        montante = float(montante)
+
 
         cursor.execute("""
-            INSERT INTO pagamentos (cliente, montante, data)
-            VALUES (%s, %s, %s)
+            INSERT INTO pagamentos
+            (cliente,montante,data)
+
+            VALUES(%s,%s,%s)
+
             RETURNING id
-        """, (nome, montante, datetime.now()))
 
-        resultado = cursor.fetchone()
+        """,
+        (
+            dados["nome"],
+            float(dados["montante"]),
+            datetime.now()
+        ))
 
-        if not resultado:
-            raise Exception("Falha ao retornar ID")
 
-        pagamento_id = resultado[0]
+        resultado=cursor.fetchone()
 
-        conn.commit()
-
-        return jsonify({
-            "status": "ok",
-            "id_pag": pagamento_id
-        })
-
-    except Exception as e:
-        conn.rollback()
-        print("Erro pagamento:", e)
-        return jsonify({"erro": str(e)}), 500
-
-    finally:
-        cursor.close()
-
-# ======================
-# PESQUISAR PEDIDOS
-# ======================
-@cliente.route("/pesquisar", methods=["GET"])
-def pesquisar_pedidos():
-    cursor = get_cursor()
-    nome = request.args.get("nome", "").strip().lower()
-    try:
-        cursor.execute("""
-            SELECT id, cliente, produto, data
-            FROM pedidosclientes
-            WHERE LOWER(cliente) LIKE %s
-            ORDER BY data DESC
-        """, (f"%{nome}%",))
-        resultados = cursor.fetchall()
-        pedidos = [
-            {
-                "id": r[0],
-                "cliente": r[1],
-                "produto": r[2],
-                "data": r[3].isoformat() if r[3] else None
-            }
-            for r in resultados
-        ]
-        return jsonify(pedidos)
-    except Exception as e:
-        print("Erro pesquisar pedidos:", e)
-        return jsonify({"erro": str(e)}), 500
-    finally:
-        cursor.close()
-
-@cliente.route("/pagamento/pago", methods=["POST"])
-def alterar_pago():
-    cursor = get_cursor()
-    dados = request.get_json()
-
-    if not dados:
-        return jsonify({"erro": "JSON inválido"}), 400
-
-    pagamento_id = dados.get("id")
-    pago = dados.get("pago")
-
-    if pagamento_id is None or pago is None:
-        return jsonify({"erro": "Dados incompletos"}), 400
-
-    try:
-        cursor.execute("""
-            UPDATE pagamentos
-            SET pago = %s
-            WHERE id = %s
-            RETURNING id, pago
-        """, (bool(pago), pagamento_id))
-
-        resultado = cursor.fetchone()
-
-        if not resultado:
-            return jsonify({"erro": "Pagamento não encontrado"}), 404
 
         conn.commit()
 
+
         return jsonify({
-            "status": "ok",
-            "id": resultado[0],
-            "pago": resultado[1]
+
+            "status":"ok",
+
+            "id_pag":resultado[0]
+
         })
 
+
     except Exception as e:
+
+
         conn.rollback()
-        print("Erro alterar pago:", e)
-        return jsonify({"erro": "Erro ao atualizar pagamento"}), 500
+
+        print("Erro pagamento:",e)
+
+
+        return jsonify({
+            "erro":str(e)
+        }),500
+
+
 
     finally:
+
         cursor.close()
-
-@cliente.route("/pagamentos", methods=["GET"])
-def listar_pagamentos():
-    cursor = get_cursor()
-
-    try:
-        cursor.execute("""
-            SELECT id, cliente, montante, pago, data
-            FROM pagamentos
-            ORDER BY data DESC
-        """)
-
-        resultados = cursor.fetchall()
-
-        pagamentos = [
-            {
-                "id": r[0],
-                "cliente": r[1],
-                "montante": float(r[2]),
-                "pago": bool(r[3]),
-                "data": r[4].isoformat() if r[4] else None
-            }
-            for r in resultados
-        ]
-
-        return jsonify(pagamentos)
-
-    except Exception as e:
-        print("Erro listar pagamentos:", e)
-        return jsonify({"erro": str(e)}), 500
-
-    finally:
-        cursor.close()
+        conn.close()
