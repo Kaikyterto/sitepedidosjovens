@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 # ======================
-# CONEXÃO SEGURA
+# CRIAR CONEXÃO
 # ======================
 def get_connection():
     return psycopg2.connect(
@@ -13,18 +14,25 @@ def get_connection():
         sslmode="require"
     )
 
-conn = get_connection()
 
+# ======================
+# CURSOR NOVO SEMPRE
+# ======================
 def get_cursor():
-    return conn.cursor()
+    conn = get_connection()
+    return conn.cursor(), conn
+
 
 print("Conectado com sucesso!")
 
-cursor = get_cursor()
 
 # ======================
-# TABELA: PEDIDOS
+# CRIAR TABELAS
 # ======================
+conn = get_connection()
+cursor = conn.cursor()
+
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS pedidosclientes (
     id SERIAL PRIMARY KEY,
@@ -35,9 +43,7 @@ CREATE TABLE IF NOT EXISTS pedidosclientes (
 );
 """)
 
-# ======================
-# TABELA: PAGAMENTOS
-# ======================
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS pagamentos (
     id SERIAL PRIMARY KEY,
@@ -49,14 +55,6 @@ CREATE TABLE IF NOT EXISTS pagamentos (
 
 
 cursor.execute("""
-ALTER TABLE pagamentos
-ADD COLUMN IF NOT EXISTS data TIMESTAMP DEFAULT NOW();
-""")
-
-# ======================
-# TABELA: PRODUTOS
-# ======================
-cursor.execute("""
 CREATE TABLE IF NOT EXISTS produtos (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
@@ -65,7 +63,9 @@ CREATE TABLE IF NOT EXISTS produtos (
 );
 """)
 
+
 conn.commit()
+
 
 # ======================
 # POPULAR PRODUTOS
@@ -88,10 +88,24 @@ produtos_iniciais = [
     ("Cuzcuz", 4.00),
 ]
 
+
 for nome, preco in produtos_iniciais:
-    cursor.execute("SELECT 1 FROM produtos WHERE nome = %s;", (nome,))
+
+    cursor.execute(
+        "SELECT 1 FROM produtos WHERE nome = %s;",
+        (nome,)
+    )
+
     existe = cursor.fetchone()
+
     if not existe:
-        cursor.execute("INSERT INTO produtos (nome, preco) VALUES (%s, %s);", (nome, preco))
+        cursor.execute(
+            "INSERT INTO produtos (nome, preco) VALUES (%s,%s);",
+            (nome, preco)
+        )
+
 
 conn.commit()
+
+cursor.close()
+conn.close()
