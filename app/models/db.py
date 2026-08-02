@@ -87,6 +87,8 @@ produtos_iniciais = [
     ("Cookie G", 12.50),
     ("Cuzcuz", 4.00),
     ("Chocolate quente", 2.00),
+    ("5 mini-coxinhas" , 5.00),
+    ("Brownie texas" , 5.00),
 ]
 
 
