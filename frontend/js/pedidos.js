@@ -1,4 +1,4 @@
-const API_URL = "https://sitepedidosjovens.onrender.com";
+const API_URL = "https://sitepedidosjovens-vztj.onrender.com";
 
 /* =========================
    BUSCAR PEDIDOS
