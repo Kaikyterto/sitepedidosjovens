@@ -22,6 +22,50 @@ def produtos():
 
     cursor, conn = get_cursor()
 
+# ======================
+# PESQUISAR CLIENTE/PEDIDO
+# ======================
+@cliente.route("/pesquisar", methods=["GET"])
+def pesquisar():
+    nome_pesquisa = request.args.get("nome")
+
+    if not nome_pesquisa:
+        return jsonify({"erro": "Parâmetro 'nome' é obrigatório"}), 400
+
+    cursor, conn = get_cursor()
+
+    try:
+        # Exemplo buscando na tabela pedidosclientes (ajuste a query conforme sua necessidade)
+        cursor.execute("""
+            SELECT id, cliente, produto, entregue, data
+            FROM pedidosclientes
+            WHERE cliente ILIKE %s
+            ORDER BY data DESC
+        """, (f"%{nome_pesquisa}%",))
+
+        resultados = cursor.fetchall()
+
+        pedidos = [
+            {
+                "id": r[0],
+                "cliente": r[1],
+                "produto": r[2],
+                "entregue": r[3],
+                "data": r[4].isoformat()
+            }
+            for r in resultados
+        ]
+
+        return jsonify(pedidos)
+
+    except Exception as e:
+        print("Erro pesquisar:", e)
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
     try:
         cursor.execute("""
             SELECT id, nome, preco
