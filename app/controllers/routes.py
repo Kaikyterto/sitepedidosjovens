@@ -19,8 +19,37 @@ def health():
 # ======================
 @cliente.route("/produtos", methods=["GET"])
 def produtos():
-
     cursor, conn = get_cursor()
+
+    try:
+        cursor.execute("""
+            SELECT id, nome, preco
+            FROM produtos
+            WHERE disponivel = TRUE
+            ORDER BY id ASC
+        """)
+
+        dados = cursor.fetchall()
+
+        produtos_lista = [
+            {
+                "id": r[0],
+                "nome": r[1],
+                "preco": float(r[2])
+            }
+            for r in dados
+        ]
+
+        return jsonify({"produtos": produtos_lista})
+
+    except Exception as e:
+        print("Erro produtos:", e)
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # ======================
 # PESQUISAR CLIENTE/PEDIDO
@@ -35,7 +64,6 @@ def pesquisar():
     cursor, conn = get_cursor()
 
     try:
-        # Exemplo buscando na tabela pedidosclientes (ajuste a query conforme sua necessidade)
         cursor.execute("""
             SELECT id, cliente, produto, entregue, data
             FROM pedidosclientes
@@ -60,35 +88,6 @@ def pesquisar():
 
     except Exception as e:
         print("Erro pesquisar:", e)
-        return jsonify({"erro": str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
-    try:
-        cursor.execute("""
-            SELECT id, nome, preco
-            FROM produtos
-            WHERE disponivel = TRUE
-            ORDER BY id ASC
-        """)
-
-        dados = cursor.fetchall()
-
-        produtos = [
-            {
-                "id": r[0],
-                "nome": r[1],
-                "preco": float(r[2])
-            }
-            for r in dados
-        ]
-
-        return jsonify({"produtos": produtos})
-
-    except Exception as e:
-        print("Erro produtos:", e)
         return jsonify({"erro": str(e)}), 500
 
     finally:
