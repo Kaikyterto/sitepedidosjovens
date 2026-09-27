@@ -35,6 +35,10 @@ const btn_copiar = document.getElementById("btn-copiar");
 const lista_carrinho = document.createElement("div");
 lista_carrinho.id = "lista_carrinho";
 
+// Criando a área de rodapé fixa do carrinho (que já existe no seu CSS como #resumo_carrinho)
+const resumo_carrinho = document.createElement("div");
+resumo_carrinho.id = "resumo_carrinho";
+
 const texto_total = document.createElement("h1");
 texto_total.id = "texto_total";
 texto_total.textContent = "Total: R$ 0,00";
@@ -43,9 +47,12 @@ const btn_fechar_pedido = document.createElement("button");
 btn_fechar_pedido.id = "btn_fechar_pedido";
 btn_fechar_pedido.textContent = "Fechar pedido";
 
+// Organizando a estrutura dentro do carrinho
+resumo_carrinho.appendChild(texto_total);
+resumo_carrinho.appendChild(btn_fechar_pedido);
+
 div_conta.appendChild(lista_carrinho);
-div_conta.appendChild(texto_total);
-div_conta.appendChild(btn_fechar_pedido);
+div_conta.appendChild(resumo_carrinho);
 
 /* =========================
    LOGIN
@@ -118,7 +125,7 @@ function renderizarProdutos() {
 function adicionarProduto(produto) {
   div_conta.style.display = "flex";
 
-  // Cria o botão toggle apenas uma vez para evitar duplicação ou bugs de eventos no mobile
+  // Cria o botão toggle apenas uma vez para evitar duplicação
   if (!carrinho_criado) {
     carrinho_criado = true;
     const btn_toggle_carrinho = document.createElement("button");
@@ -272,6 +279,10 @@ btn_fechar_pedido.addEventListener("click", async () => {
     }
 
     document.getElementById("principal").style.display = "none";
+    if (document.getElementById("btn_toggle_carrinho")) {
+      document.getElementById("btn_toggle_carrinho").style.display = "none";
+    }
+    div_conta.style.display = "none";
 
     const txid = `PEDIDO${pagamento.id_pag.toString().padStart(5, "0")}`;
 
