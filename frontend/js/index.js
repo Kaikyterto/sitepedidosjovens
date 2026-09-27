@@ -8,7 +8,8 @@ let produtos_hoje = [];
 let nome_cliente = "";
 let produtos_cliente = [];
 let total = 0;
-carrinho_criado = false;
+let carrinho_criado = false;
+let carrinho_aberto = true;
 
 /* =========================
    ELEMENTOS DOM
@@ -117,23 +118,20 @@ function renderizarProdutos() {
 function adicionarProduto(produto) {
   div_conta.style.display = "flex";
 
-  if (carrinho_criado == false) {
+  // Cria o botão toggle apenas uma vez para evitar duplicação ou bugs de eventos no mobile
+  if (!carrinho_criado) {
+    carrinho_criado = true;
     const btn_toggle_carrinho = document.createElement("button");
     btn_toggle_carrinho.id = "btn_toggle_carrinho";
-    carrinho_criado = true;
+    btn_toggle_carrinho.textContent = "X";
     document.body.appendChild(btn_toggle_carrinho);
+
+    btn_toggle_carrinho.addEventListener("click", () => {
+      carrinho_aberto = !carrinho_aberto;
+      div_conta.style.display = carrinho_aberto ? "flex" : "none";
+      btn_toggle_carrinho.textContent = carrinho_aberto ? "X" : "🛒";
+    });
   }
-
-  /* estado aberto/fechado */
-  let carrinho_aberto = true;
-  btn_toggle_carrinho.textContent = carrinho_aberto ? "X" : "🛒";
-
-  btn_toggle_carrinho.addEventListener("click", () => {
-    carrinho_aberto = !carrinho_aberto;
-
-    div_conta.style.display = carrinho_aberto ? "flex" : "none";
-    btn_toggle_carrinho.textContent = carrinho_aberto ? "X" : "🛒";
-  });
 
   total += Number(produto.preco);
 
