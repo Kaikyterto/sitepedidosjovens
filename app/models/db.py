@@ -1,5 +1,5 @@
-import psycopg2
 import os
+import psycopg2
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -64,51 +64,52 @@ CREATE TABLE IF NOT EXISTS produtos (
 """)
 
 
+# ======================
+# TABELAS DO JOGO (RANKING POR CAMPEONATO)
+# ======================
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS campeonatos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em TIMESTAMP NOT NULL DEFAULT NOW()
+);
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS jogadores (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    criado_em TIMESTAMP NOT NULL DEFAULT NOW()
+);
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS perguntas (
+    id SERIAL PRIMARY KEY,
+    enunciado TEXT NOT NULL,
+    resposta_correta TEXT,
+    pontos INT NOT NULL DEFAULT 1
+);
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS acertos (
+    id SERIAL PRIMARY KEY,
+    campeonato_id INT NOT NULL REFERENCES campeonatos(id) ON DELETE CASCADE,
+    jogador_id INT NOT NULL REFERENCES jogadores(id) ON DELETE CASCADE,
+    pergunta_id INT NOT NULL REFERENCES perguntas(id) ON DELETE CASCADE,
+    pontos_ganhos INT NOT NULL DEFAULT 1,
+    registrado_em TIMESTAMP NOT NULL DEFAULT NOW()
+);
+""")
+
+
 conn.commit()
 
-
-# ======================
-# POPULAR PRODUTOS
-# ======================
-
-produtos_iniciais = [
-    ("Tapioca", 3.00),
-    ("Café", 0.50),
-    ("Bolo de milho", 3.00),
-    ("Bolo de chocolate", 3.00),
-    ("Mini-pastel", 1.00),
-    ("Promoção : 5 Mini-pastéis", 4.00),
-    ("Refrigerante", 1.00),
-    ("Hambúrguer", 10.00),
-    ("Brownie", 3.00),
-    ("Sopa", 5.00),
-    ("Cookie P", 3.00),
-    ("Cookie M", 6.00),
-    ("Cookie G", 12.50),
-    ("Cuzcuz", 4.00),
-    ("Chocolate quente", 2.00),
-    ("5 mini-coxinhas" , 5.00),
-    ("Brownie texas" , 6.50),
-]
-
-
-for nome, preco in produtos_iniciais:
-
-    cursor.execute(
-        "SELECT 1 FROM produtos WHERE nome = %s;",
-        (nome,)
-    )
-
-    existe = cursor.fetchone()
-
-    if not existe:
-        cursor.execute(
-            "INSERT INTO produtos (nome, preco) VALUES (%s,%s);",
-            (nome, preco)
-        )
-
-
-conn.commit()
 
 cursor.close()
 conn.close()
