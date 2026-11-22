@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Jogo de Perguntas</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; padding: 20px; background: #111318; color: #f3f4f6; }
+    h1, h2, h3 { margin-top: 0; }
+    .container { max-width: 1100px; margin: 0 auto; display: grid; gap: 20px; }
+    .topbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: #1b1f27; padding: 14px 18px; border-radius: 8px; border: 1px solid #2d3340; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .card { background: #1b1f27; padding: 16px; border-radius: 8px; border: 1px solid #2d3340; }
+    label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 4px; margin-top: 10px; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #3a4254; background: #111318; color: #f3f4f6; }
+    textarea { min-height: 68px; resize: vertical; }
+    button { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; background: #2563eb; color: #fff; }
+    button:hover { background: #1d4ed8; }
+    button.secondary { background: #374151; }
+    button.secondary:hover { background: #4b5563; }
+    button.danger { background: #dc2626; }
+    button.danger:hover { background: #b91c1c; }
+    button.success { background: #16a34a; }
+    button.success:hover { background: #15803d; }
+    .row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #2d3340; vertical-align: top; }
+    .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: bold; }
+    .ativo { background: #14532d; color: #86efac; }
+    .inativo { background: #450a0a; color: #fca5a5; }
+    #msg { padding: 10px 14px; border-radius: 6px; display: none; font-size: 14px; }
+    .msg-ok { display: block !important; background: #14532d; color: #dcfce7; border: 1px solid #22c55e; }
+    .msg-err { display: block !important; background: #450a0a; color: #fee2e2; border: 1px solid #ef4444; }
+    .small { font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div>
+        <h1>Painel Admin - Jogo de Perguntas</h1>
+        <div class="small">Controle presencial de campeonatos, jogadores, perguntas, acertos e ranking</div>
+      </div>
+      <div style="min-width: 260px;">
+        <label style="margin-top: 0;">Campeonato selecionado</label>
+        <select id="select-campeonato-ativo"></select>
+      </div>
+    </div>
+
+    <div id="msg"></div>
+
+    <!-- REGISTRAR ACERTO + RANKING -->
+    <div class="grid-2">
+      <div class="card">
+        <h2>Registrar Acerto</h2>
+        <form id="form-acerto">
+          <label for="acerto-campeonato">Campeonato</label>
+          <select id="acerto-campeonato" required></select>
+
+          <label for="acerto-jogador">Jogador</label>
+          <select id="acerto-jogador" required></select>
+
+          <label for="acerto-pergunta">Pergunta</label>
+          <select id="acerto-pergunta" required></select>
+
+          <label for="acerto-pontos">Pontos ganhos (opcional — padrão da pergunta)</label>
+          <input type="number" id="acerto-pontos" min="0" placeholder="Ex: 1" />
+
+          <div class="row">
+            <button type="submit" class="success">Marcar Acerto (+Pontos)</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <h2>Ranking do Campeonato</h2>
+          <button type="button" id="btn-atualizar-ranking" class="secondary">Atualizar</button>
+        </div>
+        <div id="ranking-info" class="small">Selecione um campeonato</div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Jogador</th>
+              <th>Acertos</th>
+              <th>Pontos</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-ranking"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CAMPEONATOS + JOGADORES -->
+    <div class="grid-2">
+      <div class="card">
+        <h2>Campeonatos</h2>
+        <form id="form-campeonato">
+          <label for="camp-nome">Nome do campeonato</label>
+          <input type="text" id="camp-nome" placeholder="Ex: Rodada da Noite" required />
+          <div class="row">
+            <button type="submit">Criar Campeonato</button>
+          </div>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-campeonatos"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Jogadores</h2>
+        <form id="form-jogador">
+          <label for="jog-nome">Nome do jogador</label>
+          <input type="text" id="jog-nome" placeholder="Ex: Lucas" required />
+          <div class="row">
+            <button type="submit">Cadastrar Jogador</button>
+          </div>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-jogadores"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PERGUNTAS -->
+    <div class="card">
+      <h2>Perguntas</h2>
+      <form id="form-pergunta">
+        <div class="grid-2">
+          <div>
+            <label for="perg-enunciado">Enunciado da pergunta</label>
+            <textarea id="perg-enunciado" placeholder="Digite a pergunta que o adm vai fazer..." required></textarea>
+          </div>
+          <div>
+            <label for="perg-resposta">Resposta (para conferência do adm)</label>
+            <input type="text" id="perg-resposta" placeholder="Opcional" />
+
+            <label for="perg-pontos">Pontos</label>
+            <input type="number" id="perg-pontos" value="1" min="0" required />
+          </div>
+        </div>
+        <div class="row">
+          <button type="submit">Adicionar Pergunta</button>
+        </div>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Pergunta</th>
+            <th>Resposta</th>
+            <th>Pts</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-perguntas"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="js/admincamp.js"></script>
+</body>
+</html>
